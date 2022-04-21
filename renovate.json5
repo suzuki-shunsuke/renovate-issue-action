@@ -1,0 +1,28 @@
+{
+  extends: [
+    "config:base",
+    "github>suzuki-shunsuke/renovate-config",
+    "github>suzuki-shunsuke/renovate-issue-action-renovate-config#0.1.9",
+    "github>suzuki-shunsuke/renovate-issue-action-renovate-config:file#0.1.9(tests/aqua.*\\.yaml)",
+    "github>suzuki-shunsuke/renovate-issue-action-renovate-config:file#0.1.9(aqua/.*\\.ya?ml)",
+  ],
+  ignorePaths: [],
+  regexManagers: [
+    {
+      fileMatch: [".*\\.go"],
+      depNameTemplate: "suzuki-shunsuke/renovate-issue-action-proxy",
+      datasourceTemplate: "github-releases",
+      matchStrings: [
+        '"(?<currentValue>.*)", // renovate: depName=suzuki-shunsuke/renovate-issue-action-proxy',
+      ],
+    },
+    {
+      fileMatch: [".*\\.go"],
+      depNameTemplate: "suzuki-shunsuke/renovate-issue-action-registry",
+      datasourceTemplate: "github-releases",
+      matchStrings: [
+        '"(?<currentValue>.*)",? // renovate: depName=suzuki-shunsuke/renovate-issue-action-registry',
+      ],
+    },
+  ],
+}
