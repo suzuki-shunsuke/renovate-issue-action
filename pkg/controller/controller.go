@@ -3,6 +3,7 @@ package controller
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"os"
 
 	"github.com/google/go-github/v43/github"
@@ -19,7 +20,7 @@ type GitHub interface {
 func (ctrl *Controller) Run(ctx context.Context) error {
 	ev := &github.PullRequestEvent{}
 	if err := json.Unmarshal([]byte(os.Getenv("EVENT_PAYLOAD")), ev); err != nil {
-		return err
+		return fmt.Errorf("unmarshal the event payload as JSON: %w", err)
 	}
 	pr := ev.GetPullRequest()
 	repo := ev.GetRepo()
