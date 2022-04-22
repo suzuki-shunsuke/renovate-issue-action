@@ -24,7 +24,7 @@ func main() {
 	if err != nil {
 		zap.L().Fatal("create a logger", zap.Error(err))
 	}
-	defer logger.Sync()
+	defer logger.Sync() //nolint:errcheck
 	core(logCfg, logger)
 }
 

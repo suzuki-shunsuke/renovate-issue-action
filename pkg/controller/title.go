@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"fmt"
+
 	"github.com/suzuki-shunsuke/renovate-issue-action/pkg/template"
 )
 
@@ -13,9 +15,13 @@ type TitleParam struct {
 }
 
 func getIssueTitle(cfg *Config, metadata *Metadata) (string, error) {
-	return template.Render(defaultIssueTitleTemplate, &TitleParam{
+	s, err := template.Render(defaultIssueTitleTemplate, &TitleParam{
 		RepoOwner: "suzuki-shunsuke",
 		RepoName:  "test-renovate",
 		Metadata:  metadata,
 	})
+	if err != nil {
+		return "", fmt.Errorf("render the template of issue title: %w", err)
+	}
+	return s, nil
 }

@@ -20,11 +20,11 @@ var errMetadataNotFound = errors.New("metadata isn't found")
 
 func readMetadata(body string, metadata *Metadata) error {
 	// <!-- renovate-issue-action: {"packageFileDir": ".github/workflows", "packageName": "", "groupName": "", "depName": "aquaproj/aqua", "manager": "regex", "updateType": "major"} -->
-	ms := regexp.MustCompile(`<!-- renovate-issue-action:.*?-->`).FindString(body)
-	if ms == "" {
+	arr := regexp.MustCompile(`<!-- renovate-issue-action:(.*?)-->`).FindStringSubmatch(body)
+	if arr == nil {
 		return errMetadataNotFound
 	}
-	if err := json.Unmarshal([]byte(ms), metadata); err != nil {
+	if err := json.Unmarshal([]byte(arr[1]), metadata); err != nil {
 		return fmt.Errorf("unmarshal metadata as JSON: %w", err)
 	}
 	return nil

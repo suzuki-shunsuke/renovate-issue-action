@@ -9,7 +9,11 @@ import (
 )
 
 func Parse(s string) (*template.Template, error) {
-	return template.New("_").Funcs(sprig.TxtFuncMap()).Parse(s)
+	tpl, err := template.New("_").Funcs(sprig.TxtFuncMap()).Parse(s)
+	if err != nil {
+		return nil, fmt.Errorf("parse a string with Go's text/template: %w", err)
+	}
+	return tpl, nil
 }
 
 func Execute(tpl *template.Template, param interface{}) (string, error) {

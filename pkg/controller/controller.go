@@ -24,10 +24,27 @@ func New(gh domain.GitHub, logCfg *zap.Config) *Controller {
 	}
 }
 
-func (ctrl *Controller) Run(ctx context.Context, logger *zap.Logger) error {
+type RunParam struct {
+	GitHubEventPath string
+	GitHubActor     string
+}
+
+func readPayload(p string, ev *github.PullRequestEvent) error {
+	f, err := os.Open(p)
+	if err != nil {
+		return fmt.Errorf("open GITHUB_EVENT_PATH: %w", err)
+	}
+	defer f.Close()
+	if err := json.NewDecoder(f).Decode(ev); err != nil {
+		return fmt.Errorf("parse payload as JSON: %w", err)
+	}
+	return nil
+}
+
+func (ctrl *Controller) Run(ctx context.Context, logger *zap.Logger, param *RunParam) error {
 	ev := &github.PullRequestEvent{}
-	if err := json.Unmarshal([]byte(os.Getenv("EVENT_PAYLOAD")), ev); err != nil {
-		return fmt.Errorf("unmarshal the event payload as JSON: %w", err)
+	if err := readPayload(param.GitHubEventPath, ev); err != nil {
+		return err
 	}
 	pr := ev.GetPullRequest()
 	repo := ev.GetRepo()
@@ -49,7 +66,7 @@ func (ctrl *Controller) Run(ctx context.Context, logger *zap.Logger) error {
 	logger.Info("list issues")
 	issues, err := ctrl.github.ListIssues(ctx, repoOwner, repoName, title)
 	if err != nil {
-		return err
+		return fmt.Errorf("list issues: %w", err)
 	}
 	var issue *domain.Issue
 	if len(issues) != 0 {
@@ -63,8 +80,10 @@ func (ctrl *Controller) Run(ctx context.Context, logger *zap.Logger) error {
 		}
 		return nil
 	}
+	closedByRenovate := param.GitHubActor == "renovate[bot]"
+	logger = logger.With(zap.Bool("closed_by_renovate", closedByRenovate))
 	logger.Info("pr was closed")
-	if err := ctrl.runUnmergedPR(ctx, logger, repoOwner, repoName, title, issue, metadata, pr.GetURL()); err != nil {
+	if err := ctrl.runUnmergedPR(ctx, logger, repoOwner, repoName, title, issue, metadata, pr.GetHTMLURL(), closedByRenovate); err != nil {
 		return err
 	}
 	return nil
@@ -73,26 +92,41 @@ func (ctrl *Controller) Run(ctx context.Context, logger *zap.Logger) error {
 func (ctrl *Controller) runMergedPR(ctx context.Context, logger *zap.Logger, repoOwner, repoName string, issue *domain.Issue) error {
 	if issue != nil {
 		logger.Info("close an issue")
-		if err := ctrl.github.CloseIssue(ctx, repoOwner, repoName, issue.Number); err != nil {
-			return err
+		// TODO comment to pull request
+		if err := ctrl.github.CloseIssue(ctx, repoOwner, repoName, int(issue.Number)); err != nil {
+			return fmt.Errorf("close an issue: %w", err)
 		}
 		return nil
 	}
 	return nil
 }
 
-func (ctrl *Controller) runUnmergedPR(ctx context.Context, logger *zap.Logger, repoOwner, repoName, title string, issue *domain.Issue, metadata *Metadata, prURL string) error {
+func (ctrl *Controller) runUnmergedPR(ctx context.Context, logger *zap.Logger, repoOwner, repoName, title string, issue *domain.Issue, metadata *Metadata, prURL string, closedByRenovate bool) error {
+	issueNumber := int(issue.Number)
+	body := string(issue.Body)
+	if closedByRenovate {
+		if issue != nil {
+			logger.Info("close an issue")
+			// TODO comment to pull request
+			if err := ctrl.github.CloseIssue(ctx, repoOwner, repoName, issueNumber); err != nil {
+				return fmt.Errorf("close an issue: %w", err)
+			}
+			return nil
+		}
+		return nil
+	}
 	if issue != nil {
 		// If issue is found, update issue description.
-		if strings.Contains(issue.Body, prURL) {
+		if strings.Contains(body, prURL) {
+			logger.Info("the pull request URL is already included in the issue, so skip updating the issue")
 			return nil
 		}
 		logger.Info("update an issue")
-		if err := ctrl.github.UpdateIssue(ctx, repoOwner, repoName, issue.Number, &github.IssueRequest{
-			Body: github.String(issue.Body + `
+		if err := ctrl.github.UpdateIssue(ctx, repoOwner, repoName, issueNumber, &github.IssueRequest{
+			Body: github.String(body + `
 * ` + prURL),
 		}); err != nil {
-			return err
+			return fmt.Errorf("update an issue: %w", err)
 		}
 		return nil
 	}
@@ -102,6 +136,8 @@ func (ctrl *Controller) runUnmergedPR(ctx context.Context, logger *zap.Logger, r
 	if err != nil {
 		return err
 	}
+	body += `
+* ` + prURL
 
 	logger.Info("create an issue")
 	is, err := ctrl.github.CreateIssue(ctx, repoOwner, repoName, &github.IssueRequest{
@@ -111,7 +147,7 @@ func (ctrl *Controller) runUnmergedPR(ctx context.Context, logger *zap.Logger, r
 		// Assignees *[]string
 	})
 	if err != nil {
-		return err
+		return fmt.Errorf("create an issue: %w", err)
 	}
 	logger.Info("created an issue", zap.Int("pr_number", is.GetNumber()))
 	return nil

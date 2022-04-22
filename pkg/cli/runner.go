@@ -27,5 +27,8 @@ type LDFlags struct {
 func (runner *Runner) Run(ctx context.Context, logger *zap.Logger, args ...string) error {
 	httpClient := github.NewHTTPClient(ctx, os.Getenv("GITHUB_TOKEN"))
 	ctrl := controller.InitializeController(ctx, httpClient, runner.LogConfig)
-	return ctrl.Run(ctx, logger)
+	return ctrl.Run(ctx, logger, &controller.RunParam{ //nolint:wrapcheck
+		GitHubEventPath: os.Getenv("GITHUB_EVENT_PATH"),
+		GitHubActor:     os.Getenv("GITHUB_ACTOR"),
+	})
 }

@@ -33,38 +33,49 @@ func (cl *client) CloseIssue(ctx context.Context, repoOwner, repoName string, is
 	_, _, err := cl.github.Issues.Edit(ctx, repoOwner, repoName, issueNumber, &github.IssueRequest{
 		State: github.String("closed"),
 	})
-	return err
+	if err != nil {
+		return fmt.Errorf("close an issue by GitHub API v3: %w", err)
+	}
+	return nil
 }
 
 func (cl *client) UpdateIssue(ctx context.Context, repoOwner, repoName string, issueNumber int, issue *github.IssueRequest) error {
 	_, _, err := cl.github.Issues.Edit(ctx, repoOwner, repoName, issueNumber, issue)
-	return err
+	if err != nil {
+		return fmt.Errorf("update an issue by GitHub API v3: %w", err)
+	}
+	return nil
 }
 
 func (cl *client) CreateIssue(ctx context.Context, repoOwner, repoName string, issue *github.IssueRequest) (*github.Issue, error) {
 	ret, _, err := cl.github.Issues.Create(ctx, repoOwner, repoName, issue)
-	return ret, err
+	if err != nil {
+		return nil, fmt.Errorf("create an issue by GitHub API v3: %w", err)
+	}
+	return ret, nil
 }
 
 func (cl *client) ListIssues(ctx context.Context, repoOwner, repoName, title string) ([]*domain.Issue, error) {
 	var q struct {
 		Search struct {
-			Nodes []struct {
-				Issue *domain.Issue `graphql:"... on Issue"`
+			Edges []struct {
+				Node struct {
+					Issue *domain.Issue `graphql:"... on Issue"`
+				}
 			}
 		} `graphql:"search(first: 100, query: $searchQuery, type: $searchType)"`
 	}
 	variables := map[string]interface{}{
-		"searchQuery": githubv4.String(fmt.Sprintf(`repo:%s/%s state:open title:"%s"`, repoOwner, repoName, title)),
+		"searchQuery": githubv4.String(fmt.Sprintf(`repo:%s/%s state:open "%s" in:title`, repoOwner, repoName, title)),
 		"searchType":  githubv4.SearchTypeIssue,
 	}
 
 	if err := cl.v4Client.Query(ctx, &q, variables); err != nil {
 		return nil, fmt.Errorf("get an issue by GitHub GraphQL API: %w", err)
 	}
-	issues := make([]*domain.Issue, len(q.Search.Nodes))
-	for i, node := range q.Search.Nodes {
-		issues[i] = node.Issue
+	issues := make([]*domain.Issue, len(q.Search.Edges))
+	for i, edge := range q.Search.Edges {
+		issues[i] = edge.Node.Issue
 	}
 	return issues, nil
 }

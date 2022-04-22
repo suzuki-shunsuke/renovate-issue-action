@@ -29,6 +29,12 @@ renovate-issue-action gets metadata from this HTML comment.
 
 ## Configuration
 
+renovate-issue-action.yaml
+
+```yaml
+renovate_login: 'renovate[bot]'
+```
+
 ### Environment variable
 
 * GITHUB_TOKEN

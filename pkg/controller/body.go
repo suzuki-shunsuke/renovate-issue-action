@@ -1,21 +1,32 @@
 package controller
 
 import (
+	"fmt"
+
 	"github.com/suzuki-shunsuke/renovate-issue-action/pkg/template"
 )
 
-const defaultIssueBodyTemplate = `{{if .Metadata.PackageName}}packageName: {{.Metadata.PackageName}}{{end}}
+const defaultIssueBodyTemplate = `
+_This pull request was created by [renovate-issue-action](https://github.com/suzuki-shunsuke/renovate-issue-action)._
+
+{{if .Metadata.PackageName}}packageName: {{.Metadata.PackageName}}{{end}}
 {{if .Metadata.GroupName}}groupName: {{.Metadata.GroupName}}{{end}}
 {{if .Metadata.DepName}}depName: {{.Metadata.DepName}}{{end}}
 
-This pull request was created by [renovate-issue-action](https://github.com/suzuki-shunsuke/renovate-issue-action).`
+## Closed Pull Requests
+
+`
 
 type BodyParam struct {
 	Metadata *Metadata
 }
 
 func renderBody(body string, metadata *Metadata) (string, error) {
-	return template.Render(body, &BodyParam{
+	s, err := template.Render(body, &BodyParam{
 		Metadata: metadata,
 	})
+	if err != nil {
+		return "", fmt.Errorf("render the template of issue body: %w", err)
+	}
+	return s, nil
 }
