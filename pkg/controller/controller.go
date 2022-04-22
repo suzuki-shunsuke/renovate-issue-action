@@ -27,6 +27,7 @@ func New(gh domain.GitHub, logCfg *zap.Config) *Controller {
 type RunParam struct {
 	GitHubEventPath string
 	GitHubActor     string
+	GitHubRunID     string
 }
 
 func readPayload(p string, ev *github.PullRequestEvent) error {
@@ -73,9 +74,11 @@ func (ctrl *Controller) Run(ctx context.Context, logger *zap.Logger, param *RunP
 		logger.Info("issue already exists")
 		issue = issues[0]
 	}
+	prURL := pr.GetHTMLURL()
+	buildURL := "https://github.com/" + repoOwner + "/" + repoName + "/actions/runs/" + param.GitHubRunID
 	if pr.GetMerged() {
 		logger.Info("pr was merged")
-		if err := ctrl.runMergedPR(ctx, logger, repoOwner, repoName, issue); err != nil {
+		if err := ctrl.runMergedPR(ctx, logger, repoOwner, repoName, issue, prURL, buildURL); err != nil {
 			return err
 		}
 		return nil
@@ -83,16 +86,25 @@ func (ctrl *Controller) Run(ctx context.Context, logger *zap.Logger, param *RunP
 	closedByRenovate := param.GitHubActor == "renovate[bot]"
 	logger = logger.With(zap.Bool("closed_by_renovate", closedByRenovate))
 	logger.Info("pr was closed")
-	if err := ctrl.runUnmergedPR(ctx, logger, repoOwner, repoName, title, issue, metadata, pr.GetHTMLURL(), closedByRenovate); err != nil {
+	if err := ctrl.runUnmergedPR(ctx, logger, repoOwner, repoName, title, issue, metadata, prURL, closedByRenovate, buildURL); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (ctrl *Controller) runMergedPR(ctx context.Context, logger *zap.Logger, repoOwner, repoName string, issue *domain.Issue) error {
+const closeIssueCommentTemplate = `This issue was closed by %s
+This comment is created by [renovate-issue-action](https://github.com/suzuki-shunsuke/renovate-issue-action) [Build Link](%s)`
+
+func (ctrl *Controller) runMergedPR(ctx context.Context, logger *zap.Logger, repoOwner, repoName string, issue *domain.Issue, prURL, buildURL string) error {
 	if issue != nil {
+		issueNumber := int(issue.Number)
 		logger.Info("close an issue")
-		// TODO comment to pull request
+		cmt, err := ctrl.github.CreateComment(ctx, repoOwner, repoName, issueNumber, fmt.Sprintf(closeIssueCommentTemplate, prURL, buildURL))
+		if err != nil {
+			logger.Error("create an issue comment", zap.Error(err))
+		} else {
+			logger.Info("create an issue comment", zap.String("comment_url", cmt.GetHTMLURL()))
+		}
 		if err := ctrl.github.CloseIssue(ctx, repoOwner, repoName, int(issue.Number)); err != nil {
 			return fmt.Errorf("close an issue: %w", err)
 		}
@@ -101,13 +113,18 @@ func (ctrl *Controller) runMergedPR(ctx context.Context, logger *zap.Logger, rep
 	return nil
 }
 
-func (ctrl *Controller) runUnmergedPR(ctx context.Context, logger *zap.Logger, repoOwner, repoName, title string, issue *domain.Issue, metadata *Metadata, prURL string, closedByRenovate bool) error {
+func (ctrl *Controller) runUnmergedPR(ctx context.Context, logger *zap.Logger, repoOwner, repoName, title string, issue *domain.Issue, metadata *Metadata, prURL string, closedByRenovate bool, buildURL string) error {
 	issueNumber := int(issue.Number)
 	body := string(issue.Body)
 	if closedByRenovate {
 		if issue != nil {
 			logger.Info("close an issue")
-			// TODO comment to pull request
+			cmt, err := ctrl.github.CreateComment(ctx, repoOwner, repoName, issueNumber, fmt.Sprintf(closeIssueCommentTemplate, prURL, buildURL))
+			if err != nil {
+				logger.Error("create an issue comment", zap.Error(err))
+			} else {
+				logger.Info("create an issue comment", zap.String("comment_url", cmt.GetHTMLURL()))
+			}
 			if err := ctrl.github.CloseIssue(ctx, repoOwner, repoName, issueNumber); err != nil {
 				return fmt.Errorf("close an issue: %w", err)
 			}

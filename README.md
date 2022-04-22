@@ -1,6 +1,6 @@
 # renovate-issue-action
 
-Manage update failures by Renovate as GitHub Issues
+Manage update failures by [Renovate](https://github.com/renovatebot/renovate) as GitHub Issues
 
 ## :warning: Don't use this yet
 
@@ -37,12 +37,18 @@ renovate_login: 'renovate[bot]'
 
 ### Environment variable
 
+The following environment variables are required.
+
 * GITHUB_TOKEN
-* EVENT_PAYLOAD
+
+Furthermore, the following [GitHub Actions Default environment variables](https://docs.github.com/en/actions/learn-github-actions/environment-variables#default-environment-variables) are used.
+
+* GITHUB_EVENT_PATH
+* GITHUB_RUN_ID
 
 ### GitHub Token's permission
 
-* issues:write
+* `issues:write`
 
 ## LICENSE
 

@@ -30,5 +30,6 @@ func (runner *Runner) Run(ctx context.Context, logger *zap.Logger, args ...strin
 	return ctrl.Run(ctx, logger, &controller.RunParam{ //nolint:wrapcheck
 		GitHubEventPath: os.Getenv("GITHUB_EVENT_PATH"),
 		GitHubActor:     os.Getenv("GITHUB_ACTOR"),
+		GitHubRunID:     os.Getenv("GITHUB_RUN_ID"),
 	})
 }

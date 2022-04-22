@@ -12,6 +12,7 @@ type GitHub interface {
 	CloseIssue(ctx context.Context, repoOwner, repoName string, issueNumber int) error
 	UpdateIssue(ctx context.Context, repoOwner, repoName string, issueNumber int, issue *github.IssueRequest) error
 	CreateIssue(ctx context.Context, repoOwner, repoName string, issue *github.IssueRequest) (*github.Issue, error)
+	CreateComment(ctx context.Context, repoOwner, repoName string, issueNumber int, body string) (*github.IssueComment, error)
 }
 
 type Issue struct {

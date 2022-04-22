@@ -77,3 +77,13 @@ func (cl *client) ListIssues(ctx context.Context, repoOwner, repoName, title str
 	}
 	return issues, nil
 }
+
+func (cl *client) CreateComment(ctx context.Context, repoOwner, repoName string, issueNumber int, body string) (*github.IssueComment, error) {
+	cmt, _, err := cl.github.Issues.CreateComment(ctx, repoOwner, repoName, issueNumber, &github.IssueComment{
+		Body: github.String(body),
+	})
+	if err != nil {
+		return nil, fmt.Errorf("create an issue comment by GitHub API v3: %w", err)
+	}
+	return cmt, nil
+}
