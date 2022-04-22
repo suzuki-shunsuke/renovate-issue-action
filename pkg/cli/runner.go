@@ -3,15 +3,19 @@ package cli
 import (
 	"context"
 	"io"
+	"os"
 
 	"github.com/suzuki-shunsuke/renovate-issue-action/pkg/controller"
+	"github.com/suzuki-shunsuke/renovate-issue-action/pkg/github"
+	"go.uber.org/zap"
 )
 
 type Runner struct {
-	Stdin   io.Reader
-	Stdout  io.Writer
-	Stderr  io.Writer
-	LDFlags *LDFlags
+	Stdin     io.Reader
+	Stdout    io.Writer
+	Stderr    io.Writer
+	LDFlags   *LDFlags
+	LogConfig *zap.Config
 }
 
 type LDFlags struct {
@@ -20,7 +24,8 @@ type LDFlags struct {
 	Date    string
 }
 
-func (runner *Runner) Run(ctx context.Context, args ...string) error {
-	ctrl := &controller.Controller{}
-	return ctrl.Run(ctx)
+func (runner *Runner) Run(ctx context.Context, logger *zap.Logger, args ...string) error {
+	httpClient := github.NewHTTPClient(ctx, os.Getenv("GITHUB_TOKEN"))
+	ctrl := controller.InitializeController(ctx, httpClient, runner.LogConfig)
+	return ctrl.Run(ctx, logger)
 }

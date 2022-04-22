@@ -6,10 +6,10 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/sirupsen/logrus"
-	"github.com/suzuki-shunsuke/logrus-error/logerr"
 	"github.com/suzuki-shunsuke/renovate-issue-action/pkg/cli"
 	"github.com/suzuki-shunsuke/renovate-issue-action/pkg/log"
+	"github.com/suzuki-shunsuke/zap-error/logerr"
+	"go.uber.org/zap"
 )
 
 var (
@@ -19,19 +19,21 @@ var (
 )
 
 func main() {
-	fields := logrus.Fields{
-		"version": version,
+	logCfg := log.NewConfig()
+	logger, err := logCfg.Build()
+	if err != nil {
+		zap.L().Fatal("create a logger", zap.Error(err))
 	}
-	if err := core(); err != nil {
-		logerr.WithError(log.New(version), err).WithFields(fields).Fatal("renovate-issue-action failed")
-	}
+	defer logger.Sync()
+	core(logCfg, logger)
 }
 
-func core() error {
+func core(logCfg *zap.Config, logger *zap.Logger) {
 	runner := cli.Runner{
-		Stdin:  os.Stdin,
-		Stdout: os.Stdout,
-		Stderr: os.Stderr,
+		Stdin:     os.Stdin,
+		Stdout:    os.Stdout,
+		Stderr:    os.Stderr,
+		LogConfig: logCfg,
 		LDFlags: &cli.LDFlags{
 			Version: version,
 			Commit:  commit,
@@ -40,5 +42,7 @@ func core() error {
 	}
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
-	return runner.Run(ctx, os.Args...) //nolint:wrapcheck
+	if err := runner.Run(ctx, logger, os.Args...); err != nil {
+		logger.Fatal("command failed", logerr.ToFields(err)...)
+	}
 }
