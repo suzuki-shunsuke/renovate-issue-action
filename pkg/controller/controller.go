@@ -59,7 +59,7 @@ func (ctrl *Controller) Run(ctx context.Context, logger *zap.Logger, param *RunP
 	}
 	cfg := &Config{}
 	logger.Info("get an issue title")
-	title, err := getIssueTitle(cfg, metadata)
+	title, err := getIssueTitle(cfg, repoOwner, repoName, metadata)
 	if err != nil {
 		return err
 	}

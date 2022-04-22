@@ -14,10 +14,10 @@ type TitleParam struct {
 	Metadata  *Metadata
 }
 
-func getIssueTitle(cfg *Config, metadata *Metadata) (string, error) {
+func getIssueTitle(cfg *Config, repoOwner, repoName string, metadata *Metadata) (string, error) {
 	s, err := template.Render(defaultIssueTitleTemplate, &TitleParam{
-		RepoOwner: "suzuki-shunsuke",
-		RepoName:  "test-renovate",
+		RepoOwner: repoOwner,
+		RepoName:  repoName,
 		Metadata:  metadata,
 	})
 	if err != nil {
