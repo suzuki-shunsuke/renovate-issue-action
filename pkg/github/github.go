@@ -58,10 +58,8 @@ func (cl *client) CreateIssue(ctx context.Context, repoOwner, repoName string, i
 func (cl *client) ListIssues(ctx context.Context, repoOwner, repoName, title string) ([]*domain.Issue, error) {
 	var q struct {
 		Search struct {
-			Edges []struct {
-				Node struct {
-					Issue *domain.Issue `graphql:"... on Issue"`
-				}
+			Nodes []struct {
+				domain.Issue `graphql:"... on Issue"`
 			}
 		} `graphql:"search(first: 100, query: $searchQuery, type: $searchType)"`
 	}
@@ -73,9 +71,9 @@ func (cl *client) ListIssues(ctx context.Context, repoOwner, repoName, title str
 	if err := cl.v4Client.Query(ctx, &q, variables); err != nil {
 		return nil, fmt.Errorf("get an issue by GitHub GraphQL API: %w", err)
 	}
-	issues := make([]*domain.Issue, len(q.Search.Edges))
-	for i, edge := range q.Search.Edges {
-		issues[i] = edge.Node.Issue
+	issues := make([]*domain.Issue, len(q.Search.Nodes))
+	for i, node := range q.Search.Nodes {
+		issues[i] = &node.Issue
 	}
 	return issues, nil
 }
