@@ -138,6 +138,26 @@ In the template, [sprig Function](http://masterminds.github.io/sprig/) can be us
   * DepName
   * PackageFileDir
 
+## Expression
+
+[antonmedv/expr](https://github.com/antonmedv/expr) is used.
+About expr, please see [Language Definition](https://github.com/antonmedv/expr/blob/master/docs/Language-Definition.md) too.
+
+e.g.
+
+```yaml
+entries:
+- if: Metadata.PackageName == "actions/checkout"
+```
+
+### Expression Variables
+
+* Metadata
+  * GroupName
+  * PackageName
+  * DepName
+  * PackageFileDir
+
 ### Environment variable
 
 The following environment variables are required.
