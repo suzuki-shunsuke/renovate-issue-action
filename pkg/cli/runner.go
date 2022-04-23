@@ -2,6 +2,7 @@ package cli
 
 import (
 	"context"
+	"flag"
 	"io"
 	"os"
 
@@ -24,12 +25,19 @@ type LDFlags struct {
 	Date    string
 }
 
+func parseFlag(param *controller.RunParam) {
+	flag.StringVar(&param.ConfigFilePath, "config", "", "configuration file path")
+	flag.Parse()
+}
+
 func (runner *Runner) Run(ctx context.Context, logger *zap.Logger, args ...string) error {
 	httpClient := github.NewHTTPClient(ctx, os.Getenv("GITHUB_TOKEN"))
 	ctrl := controller.InitializeController(ctx, httpClient, runner.LogConfig)
-	return ctrl.Run(ctx, logger, &controller.RunParam{ //nolint:wrapcheck
+	param := &controller.RunParam{
 		GitHubEventPath: os.Getenv("GITHUB_EVENT_PATH"),
 		GitHubActor:     os.Getenv("GITHUB_ACTOR"),
 		GitHubRunID:     os.Getenv("GITHUB_RUN_ID"),
-	})
+	}
+	parseFlag(param)
+	return ctrl.Run(ctx, logger, param) //nolint:wrapcheck
 }

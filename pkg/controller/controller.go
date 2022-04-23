@@ -9,6 +9,7 @@ import (
 
 	"github.com/google/go-github/v43/github"
 	"github.com/suzuki-shunsuke/renovate-issue-action/pkg/domain"
+	"github.com/suzuki-shunsuke/zap-error/logerr"
 	"go.uber.org/zap"
 )
 
@@ -28,18 +29,7 @@ type RunParam struct {
 	GitHubEventPath string
 	GitHubActor     string
 	GitHubRunID     string
-}
-
-func readPayload(p string, ev *github.PullRequestEvent) error {
-	f, err := os.Open(p)
-	if err != nil {
-		return fmt.Errorf("open GITHUB_EVENT_PATH: %w", err)
-	}
-	defer f.Close()
-	if err := json.NewDecoder(f).Decode(ev); err != nil {
-		return fmt.Errorf("parse payload as JSON: %w", err)
-	}
-	return nil
+	ConfigFilePath  string
 }
 
 func (ctrl *Controller) Run(ctx context.Context, logger *zap.Logger, param *RunParam) error {
@@ -58,6 +48,12 @@ func (ctrl *Controller) Run(ctx context.Context, logger *zap.Logger, param *RunP
 		return err
 	}
 	cfg := &Config{}
+	if p := findConfig(param.ConfigFilePath); p != "" {
+		if err := readConfig(p, cfg); err != nil {
+			return logerr.WithFields(fmt.Errorf("read a configuration file: %w", err), zap.String("configuration_file_path", p))
+		}
+	}
+	setDefaultConfig(cfg)
 	logger.Info("get an issue title")
 	title, err := getIssueTitle(cfg, repoOwner, repoName, metadata)
 	if err != nil {
@@ -83,7 +79,7 @@ func (ctrl *Controller) Run(ctx context.Context, logger *zap.Logger, param *RunP
 		}
 		return nil
 	}
-	closedByRenovate := param.GitHubActor == "renovate[bot]"
+	closedByRenovate := param.GitHubActor == cfg.RenovateLogin
 	logger = logger.With(zap.Bool("closed_by_renovate", closedByRenovate))
 	logger.Info("pr was closed")
 	if err := ctrl.runUnmergedPR(ctx, logger, repoOwner, repoName, title, issue, metadata, prURL, closedByRenovate, buildURL); err != nil {
@@ -170,4 +166,14 @@ func (ctrl *Controller) runUnmergedPR(ctx context.Context, logger *zap.Logger, r
 	return nil
 }
 
-type Config struct{}
+func readPayload(p string, ev *github.PullRequestEvent) error {
+	f, err := os.Open(p)
+	if err != nil {
+		return fmt.Errorf("open GITHUB_EVENT_PATH: %w", err)
+	}
+	defer f.Close()
+	if err := json.NewDecoder(f).Decode(ev); err != nil {
+		return fmt.Errorf("parse payload as JSON: %w", err)
+	}
+	return nil
+}

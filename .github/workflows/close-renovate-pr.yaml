@@ -2,7 +2,7 @@
 name: renovate-issue-action
 on:
   pull_request:
-    branches: [main]
+    branches: [dummy] # TODO fix after adding renovate-issue-action to aqua-registry
     types:
     - closed
 jobs:
