@@ -2,11 +2,11 @@ package cli
 
 import (
 	"context"
-	"flag"
 	"fmt"
 	"io"
 	"os"
 
+	"github.com/spf13/pflag"
 	"github.com/suzuki-shunsuke/renovate-issue-action/pkg/controller"
 	"github.com/suzuki-shunsuke/renovate-issue-action/pkg/github"
 	"go.uber.org/zap"
@@ -37,25 +37,27 @@ func (flags *LDFlags) ShowVersion() string {
 }
 
 func parseFlag(param *controller.RunParam, verFlag, helpFlag *bool) {
-	flag.StringVar(&param.ConfigFilePath, "config", "", "configuration file path")
-	flag.BoolVar(verFlag, "version", false, "show renovate-issue-action's version")
-	flag.BoolVar(helpFlag, "help", false, "show the help message")
-	flag.Parse()
+	pflag.StringVarP(&param.ConfigFilePath, "config", "c", "", "configuration file path")
+	pflag.BoolVarP(verFlag, "version", "v", false, "show renovate-issue-action's version")
+	pflag.BoolVarP(helpFlag, "help", "h", false, "show the help message")
+	pflag.Parse()
 }
 
 const helpMsg = `NAME:
    renovate-issue-action - Create, update, and close GitHub Issues with GitHub Actions according to Renovate Pull Requests
 
+   https://github.com/suzuki-shunsuke/renovate-issue-action
+
 USAGE:
-   renovate-issue-action [--help] [--version] [--config <configuration file path>]
+   renovate-issue-action [--help, -h] [--version, -v] [--config <configuration file path>, -c <configuration file path>]
 
 VERSION:
    %s
 
 OPTIONS:
-   --config value   configuration file path [$AQUA_CONFIG]
-   --help           show help (default: false)
-   --version        print the version (default: false)`
+   --config, -c value   configuration file path [$AQUA_CONFIG]
+   --help, -h           show help (default: false)
+   --version, -v        print the version (default: false)`
 
 func (runner *Runner) Run(ctx context.Context, logger *zap.Logger, args ...string) error {
 	httpClient := github.NewHTTPClient(ctx, os.Getenv("GITHUB_TOKEN"))
