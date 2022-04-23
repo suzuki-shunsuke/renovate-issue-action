@@ -64,7 +64,7 @@ It is difficult to understand the list of unresolved Pull Requests.
 
 Please add GitHub Actions Workflow and run renovate-issue-action.
 
-e.g. [.github/workflows/close-renovate-pr.yaml](.github/workflows/close-renovate-pr.yaml)
+[Example](https://github.com/suzuki-shunsuke/example-renovate-issue-action/blob/main/.github/workflows/close-renovate-pr.yaml)
 
 Please update Renovate Configuration using [prBodyNotes](https://docs.renovatebot.com/configuration-options/#prbodynotes).
 
@@ -75,6 +75,12 @@ Please update Renovate Configuration using [prBodyNotes](https://docs.renovatebo
 ```
 
 renovate-issue-action gets metadata from this HTML comment.
+
+## Install
+
+Note that `renovate-issue-action` isn't a Action but a CLI tool.
+Please download the asset from [GitHub Releases](https://github.com/suzuki-shunsuke/renovate-issue-action/releases).
+We recommend [aqua](https://aquaproj.github.io/) to install `renovate-issue-action`.
 
 ## Configuration
 
