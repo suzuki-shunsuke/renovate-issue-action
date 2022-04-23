@@ -80,7 +80,7 @@ renovate-issue-action gets metadata from this HTML comment.
 
 Configuration file is optional.
 By default, the file `^\.renovate-issue-action\.ya?ml$` in the current directory is read if it exists.
-You can specify configuration file path with the command line option `--config`.
+You can specify configuration file path with the command line option `--config, -c`.
 
 ```console
 $ renovate-issue-action --config config.yaml
