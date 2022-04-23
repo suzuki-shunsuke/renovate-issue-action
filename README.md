@@ -127,6 +127,8 @@ entries:
     "sre" in Labels
   issue:
     repo_name: sre-issues
+    addtional_labels: ["sre"]
+    addtional_assignees: ["octocat"]
 ```
 
 ### Template

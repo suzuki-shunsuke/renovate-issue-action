@@ -17,21 +17,16 @@ type Entry struct {
 }
 
 type Issue struct {
-	RepoOwner         string `yaml:"repo_owner"`
-	RepoName          string `yaml:"repo_name"`
-	Title             *string
-	DescriptionHeader *string `yaml:"description_header"`
-	DescriptionBody   *string `yaml:"description_body"`
-	Labels            []string
-	Assignees         []string
-	Projects          []string
-}
-
-func (issue *Issue) Description() string {
-	return domain.GetString(issue.DescriptionHeader) + `
-` + domain.GetString(issue.DescriptionBody) + `
-## Closed Pull Requests
-`
+	RepoOwner           string `yaml:"repo_owner"`
+	RepoName            string `yaml:"repo_name"`
+	Title               *string
+	DescriptionHeader   *string `yaml:"description_header"`
+	DescriptionBody     *string `yaml:"description_body"`
+	Labels              []string
+	AdditionalLabels    []string `yaml:"additional_labels"`
+	Assignees           []string
+	AdditionalAssignees []string `yaml:"additional_assignees"`
+	Projects            []string
 }
 
 func (issue *Issue) Merge(is *Issue) {
@@ -56,6 +51,15 @@ func (issue *Issue) Merge(is *Issue) {
 	if is.Assignees != nil {
 		issue.Assignees = is.Assignees
 	}
+	issue.AdditionalLabels = append(issue.AdditionalLabels, is.AdditionalLabels...)
+	issue.AdditionalAssignees = append(issue.AdditionalAssignees, is.AdditionalAssignees...)
+}
+
+func (issue *Issue) Description() string {
+	return domain.GetString(issue.DescriptionHeader) + `
+` + domain.GetString(issue.DescriptionBody) + `
+## Closed Pull Requests
+`
 }
 
 const defaultIssueTitleTemplate = `Renovate Automerge Failure({{.RepoOwner}}/{{.RepoName}}): {{if .Metadata.GroupName}}{{.Metadata.GroupName}}{{else}}{{.Metadata.PackageName}}{{.Metadata.DepName}}{{end}} {{if .Metadata.PackageFileDir}}({{.Metadata.PackageFileDir}}){{end}}`
