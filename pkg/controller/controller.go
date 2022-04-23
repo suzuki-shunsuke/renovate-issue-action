@@ -158,9 +158,9 @@ func (ctrl *Controller) runUnmergedPR(ctx context.Context, logger *zap.Logger, c
 
 	logger.Info("create an issue")
 	is, err := ctrl.github.CreateIssue(ctx, repoOwner, repoName, &github.IssueRequest{
-		Title: github.String(title),
-		Body:  github.String(body),
-		// Labels    *[]string
+		Title:     github.String(title),
+		Body:      github.String(body),
+		Labels:    domain.GetStringSlicePointer(cfg.Issue.Labels),
 		Assignees: domain.GetStringSlicePointer(cfg.Issue.Assignees),
 	})
 	if err != nil {

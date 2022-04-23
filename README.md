@@ -110,6 +110,7 @@ issue:
     {{if .Metadata.DepName}}depName: {{.Metadata.DepName}}{{end}}
   description_body: "" # By default, empty
   assignees: ["suzuki-shunsuke"] # By default, null
+  labels: ["renovate-issue-action"] # By default, null
 ```
 
 ### Template
