@@ -1,0 +1,19 @@
+---
+project_name: renovate-issue-action
+archives:
+- name_template: "{{.ProjectName}}_{{.Os}}_{{.Arch}}"
+builds:
+- binary: renovate-issue-action
+  main: cmd/renovate-issue-action/main.go
+  env:
+  - CGO_ENABLED=0
+  goos:
+  - darwin
+  - linux
+  goarch:
+  - amd64
+  - arm64
+release:
+  prerelease: true
+  header: |
+    [Pull Requests](https://github.com/suzuki-shunsuke/renovate-issue-action/pulls?q=is%3Apr+milestone%3A{{.Tag}}) | [Issues](https://github.com/suzuki-shunsuke/renovate-issue-action/issues?q=is%3Aissue+milestone%3A{{.Tag}}) | https://github.com/suzuki-shunsuke/renovate-issue-action/compare/{{.PreviousTag}}...{{.Tag}}

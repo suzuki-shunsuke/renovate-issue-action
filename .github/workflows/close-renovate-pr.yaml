@@ -1,0 +1,18 @@
+---
+name: renovate-issue-action
+on:
+  pull_request:
+    branches: [dummy] # TODO fix after adding renovate-issue-action to aqua-registry
+    types:
+    - closed
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: aquaproj/aqua-installer@v1.0.0
+      with:
+        aqua_version: v1.4.0
+    - run: renovate-issue-action
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
