@@ -54,7 +54,7 @@ func (ctrl *Controller) Run(ctx context.Context, logger *zap.Logger, param *RunP
 			return fmt.Errorf("read a configuration file: %w", logerr.WithFields(err, zap.String("configuration_file_path", p)))
 		}
 	}
-	config.SetDefault(cfg)
+	config.SetDefault(cfg, repoOwner, repoName)
 	logger.Info("get an issue title")
 	title, err := getIssueTitle(cfg, repoOwner, repoName, metadata)
 	if err != nil {
@@ -62,7 +62,7 @@ func (ctrl *Controller) Run(ctx context.Context, logger *zap.Logger, param *RunP
 	}
 	logger = logger.With(zap.String("issue_title", title))
 	logger.Info("list issues")
-	issues, err := ctrl.github.ListIssues(ctx, repoOwner, repoName, title)
+	issues, err := ctrl.github.ListIssues(ctx, cfg.Issue.RepoOwner, cfg.Issue.RepoName, title)
 	if err != nil {
 		return fmt.Errorf("list issues: %w", err)
 	}
@@ -75,7 +75,7 @@ func (ctrl *Controller) Run(ctx context.Context, logger *zap.Logger, param *RunP
 	buildURL := "https://github.com/" + repoOwner + "/" + repoName + "/actions/runs/" + param.GitHubRunID
 	if pr.GetMerged() {
 		logger.Info("pr was merged")
-		if err := ctrl.runMergedPR(ctx, logger, repoOwner, repoName, issue, prURL, buildURL); err != nil {
+		if err := ctrl.runMergedPR(ctx, logger, cfg.Issue.RepoOwner, cfg.Issue.RepoName, issue, prURL, buildURL); err != nil {
 			return err
 		}
 		return nil
@@ -83,7 +83,7 @@ func (ctrl *Controller) Run(ctx context.Context, logger *zap.Logger, param *RunP
 	closedByRenovate := param.GitHubActor == cfg.RenovateLogin
 	logger = logger.With(zap.Bool("closed_by_renovate", closedByRenovate))
 	logger.Info("pr was closed")
-	if err := ctrl.runUnmergedPR(ctx, logger, cfg, repoOwner, repoName, title, issue, metadata, prURL, closedByRenovate, buildURL); err != nil {
+	if err := ctrl.runUnmergedPR(ctx, logger, cfg, cfg.Issue.RepoOwner, cfg.Issue.RepoName, title, issue, metadata, prURL, closedByRenovate, buildURL); err != nil {
 		return err
 	}
 	return nil

@@ -97,6 +97,8 @@ renovate-issue-action.yaml
 ```yaml
 renovate_login: 'renovate[bot]'
 issue:
+  repo_owner: ""
+  repo_name: ""
   title: 'Renovate Automerge Failure({{.RepoOwner}}/{{.RepoName}}): {{if .Metadata.GroupName}}{{.Metadata.GroupName}}{{else}}{{.Metadata.PackageName}}{{.Metadata.DepName}}{{end}} {{if .Metadata.PackageFileDir}}({{.Metadata.PackageFileDir}}){{end}}'
   description_header: |
     _This pull request was created by [renovate-issue-action](https://github.com/suzuki-shunsuke/renovate-issue-action)._
