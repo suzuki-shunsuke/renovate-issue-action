@@ -11,8 +11,9 @@ type Config struct {
 }
 
 type Entry struct {
-	Issue *Issue
-	If    string
+	Issue  *Issue
+	If     string
+	Ignore bool
 }
 
 type Issue struct {

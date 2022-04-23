@@ -121,6 +121,8 @@ entries:
 
       * Check closed Pull Requests
       * Fix the problem and update the package
+- if: Metadata.PackageName == "actions/cache"
+  ignore: true # If `ignore` is true, do nothing.
 ```
 
 ### Template
