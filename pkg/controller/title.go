@@ -3,10 +3,9 @@ package controller
 import (
 	"fmt"
 
+	"github.com/suzuki-shunsuke/renovate-issue-action/pkg/config"
 	"github.com/suzuki-shunsuke/renovate-issue-action/pkg/template"
 )
-
-const defaultIssueTitleTemplate = `Renovate Automerge Failure({{.RepoOwner}}/{{.RepoName}}): {{if .Metadata.GroupName}}{{.Metadata.GroupName}}{{else}}{{.Metadata.PackageName}}{{.Metadata.DepName}}{{end}} {{if .Metadata.PackageFileDir}}({{.Metadata.PackageFileDir}}){{end}}`
 
 type TitleParam struct {
 	RepoOwner string
@@ -14,8 +13,8 @@ type TitleParam struct {
 	Metadata  *Metadata
 }
 
-func getIssueTitle(cfg *Config, repoOwner, repoName string, metadata *Metadata) (string, error) {
-	s, err := template.Render(defaultIssueTitleTemplate, &TitleParam{
+func getIssueTitle(cfg *config.Config, repoOwner, repoName string, metadata *Metadata) (string, error) {
+	s, err := template.Render(cfg.Issue.Title, &TitleParam{
 		RepoOwner: repoOwner,
 		RepoName:  repoName,
 		Metadata:  metadata,

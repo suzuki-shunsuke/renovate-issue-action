@@ -96,7 +96,33 @@ renovate-issue-action.yaml
 
 ```yaml
 renovate_login: 'renovate[bot]'
+issue:
+  title: 'Renovate Automerge Failure({{.RepoOwner}}/{{.RepoName}}): {{if .Metadata.GroupName}}{{.Metadata.GroupName}}{{else}}{{.Metadata.PackageName}}{{.Metadata.DepName}}{{end}} {{if .Metadata.PackageFileDir}}({{.Metadata.PackageFileDir}}){{end}}'
+  description_header: |
+    _This pull request was created by [renovate-issue-action](https://github.com/suzuki-shunsuke/renovate-issue-action)._
+
+    :warning: Please don't edit the Issue title, because renovate-issue-action searches issue with Issue title.
+
+    {{if .Metadata.PackageName}}packageName: {{.Metadata.PackageName}}{{end}}
+    {{if .Metadata.GroupName}}groupName: {{.Metadata.GroupName}}{{end}}
+    {{if .Metadata.DepName}}depName: {{.Metadata.DepName}}{{end}}
+  description_body: ""
 ```
+
+### Template
+
+Some configuration fields are parsed with Go's [text/template](https://pkg.go.dev/text/template).
+In the template, [sprig Function](http://masterminds.github.io/sprig/) can be used.
+
+#### Template Variables
+
+* RepoOwner
+* RepoName
+* Metadata
+  * GroupName
+  * PackageName
+  * DepName
+  * PackageFileDir
 
 ### Environment variable
 
