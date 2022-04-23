@@ -14,14 +14,6 @@ var errMustBeBool = errors.New("must be a boolean")
 
 type Param struct {
 	Metadata *domain.Metadata
-	Vars     []*Var
-}
-
-type Var struct {
-	Name  string
-	Type  string
-	Value interface{}
-	Vars  interface{}
 }
 
 func CompileBool(s string) (*vm.Program, error) {
