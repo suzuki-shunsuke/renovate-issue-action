@@ -11,11 +11,11 @@ import (
 type TitleParam struct {
 	RepoOwner string
 	RepoName  string
-	Metadata  *Metadata
+	Metadata  *domain.Metadata
 }
 
-func getIssueTitle(cfg *config.Config, repo *domain.Repo, metadata *Metadata) (string, error) {
-	s, err := template.Render(cfg.Issue.Title, &TitleParam{
+func getIssueTitle(issue *config.Issue, repo *domain.Repo, metadata *domain.Metadata) (string, error) {
+	s, err := template.Render(issue.Title, &TitleParam{
 		RepoOwner: repo.Owner,
 		RepoName:  repo.Name,
 		Metadata:  metadata,

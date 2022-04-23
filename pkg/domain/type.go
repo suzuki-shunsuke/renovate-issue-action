@@ -23,3 +23,12 @@ type Repo struct {
 	Owner string
 	Name  string
 }
+
+type Metadata struct {
+	PackageFileDir string `json:"packageFileDir"`
+	PackageName    string `json:"packageName"`
+	GroupName      string `json:"groupName"`
+	DepName        string `json:"depName"`
+	UpdateType     string `json:"updateType"`
+	Manager        string `json:"manager"`
+}

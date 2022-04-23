@@ -10,6 +10,7 @@ import (
 	"github.com/google/go-github/v43/github"
 	"github.com/suzuki-shunsuke/renovate-issue-action/pkg/config"
 	"github.com/suzuki-shunsuke/renovate-issue-action/pkg/domain"
+	"github.com/suzuki-shunsuke/renovate-issue-action/pkg/expr"
 	"github.com/suzuki-shunsuke/zap-error/logerr"
 	"go.uber.org/zap"
 )
@@ -44,7 +45,7 @@ func (ctrl *Controller) Run(ctx context.Context, logger *zap.Logger, param *RunP
 		Owner: repo.GetOwner().GetLogin(),
 		Name:  repo.GetName(),
 	}
-	metadata := &Metadata{}
+	metadata := &domain.Metadata{}
 	logger = logger.With(zap.String("repo_owner", prRepo.Owner), zap.String("repo_name", prRepo.Name))
 	logger.Info("read metadata")
 	if err := readMetadata(pr.GetBody(), metadata); err != nil {
@@ -57,8 +58,14 @@ func (ctrl *Controller) Run(ctx context.Context, logger *zap.Logger, param *RunP
 		}
 	}
 	config.SetDefault(cfg, prRepo)
+	logger.Info("select an entry")
+	entry := selectEntry(logger, cfg.Entries, metadata)
+	if entry != nil {
+		cfg.Issue.Merge(entry.Issue)
+	}
+
 	logger.Info("get an issue title")
-	title, err := getIssueTitle(cfg, prRepo, metadata)
+	title, err := getIssueTitle(cfg.Issue, prRepo, metadata)
 	if err != nil {
 		return err
 	}
@@ -111,7 +118,7 @@ func (ctrl *Controller) runMergedPR(ctx context.Context, logger *zap.Logger, rep
 	return nil
 }
 
-func (ctrl *Controller) runUnmergedPR(ctx context.Context, logger *zap.Logger, cfg *config.Config, repoOwner, repoName, title string, issue *domain.Issue, metadata *Metadata, prURL string, closedByRenovate bool, buildURL string) error {
+func (ctrl *Controller) runUnmergedPR(ctx context.Context, logger *zap.Logger, cfg *config.Config, repoOwner, repoName, title string, issue *domain.Issue, metadata *domain.Metadata, prURL string, closedByRenovate bool, buildURL string) error {
 	if closedByRenovate {
 		if issue == nil {
 			return nil
@@ -178,6 +185,25 @@ func readPayload(p string, ev *github.PullRequestEvent) error {
 	defer f.Close()
 	if err := json.NewDecoder(f).Decode(ev); err != nil {
 		return fmt.Errorf("parse payload as JSON: %w", err)
+	}
+	return nil
+}
+
+func selectEntry(logger *zap.Logger, entries []*config.Entry, metadata *domain.Metadata) *config.Entry {
+	for i, entry := range entries {
+		prog, err := expr.CompileBool(entry.If)
+		if err != nil {
+			logger.Error("compile entry.if", zap.Int("entry_index", i), zap.Error(err))
+			continue
+		}
+		f, err := expr.RunBool(prog, metadata)
+		if err != nil {
+			logger.Error("evaluate entry.if", zap.Int("entry_index", i), zap.Error(err))
+			continue
+		}
+		if f {
+			return entry
+		}
 	}
 	return nil
 }

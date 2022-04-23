@@ -7,6 +7,12 @@ import (
 type Config struct {
 	RenovateLogin string `yaml:"renovate_login"`
 	Issue         *Issue
+	Entries       []*Entry
+}
+
+type Entry struct {
+	Issue *Issue
+	If    string
 }
 
 type Issue struct {
@@ -18,6 +24,30 @@ type Issue struct {
 	Labels            []string
 	Assignees         []string
 	Projects          []string
+}
+
+func (issue *Issue) Merge(is *Issue) {
+	if is.RepoOwner != "" {
+		issue.RepoOwner = is.RepoOwner
+	}
+	if is.RepoName != "" {
+		issue.RepoName = is.RepoName
+	}
+	if is.Title != "" {
+		issue.Title = is.Title
+	}
+	if is.DescriptionHeader != "" {
+		issue.DescriptionHeader = is.DescriptionHeader
+	}
+	if is.DescriptionBody != "" {
+		issue.DescriptionBody = is.DescriptionBody
+	}
+	if is.Labels != nil {
+		issue.Labels = is.Labels
+	}
+	if is.Assignees != nil {
+		issue.Assignees = is.Assignees
+	}
 }
 
 const defaultIssueTitleTemplate = `Renovate Automerge Failure({{.RepoOwner}}/{{.RepoName}}): {{if .Metadata.GroupName}}{{.Metadata.GroupName}}{{else}}{{.Metadata.PackageName}}{{.Metadata.DepName}}{{end}} {{if .Metadata.PackageFileDir}}({{.Metadata.PackageFileDir}}){{end}}`
