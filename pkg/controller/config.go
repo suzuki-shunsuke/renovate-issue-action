@@ -23,7 +23,7 @@ func findConfig(p string) string {
 		return p
 	}
 	for _, p := range defaultConfigPaths {
-		if _, err := os.Stat(p); err != nil {
+		if _, err := os.Stat(p); err == nil {
 			return p
 		}
 	}
