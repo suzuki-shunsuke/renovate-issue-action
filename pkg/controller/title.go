@@ -3,6 +3,7 @@ package controller
 import (
 	"fmt"
 
+	"github.com/suzuki-shunsuke/renovate-issue-action/pkg/config"
 	"github.com/suzuki-shunsuke/renovate-issue-action/pkg/template"
 )
 
@@ -14,7 +15,7 @@ type TitleParam struct {
 	Metadata  *Metadata
 }
 
-func getIssueTitle(cfg *Config, repoOwner, repoName string, metadata *Metadata) (string, error) {
+func getIssueTitle(cfg *config.Config, repoOwner, repoName string, metadata *Metadata) (string, error) {
 	s, err := template.Render(defaultIssueTitleTemplate, &TitleParam{
 		RepoOwner: repoOwner,
 		RepoName:  repoName,

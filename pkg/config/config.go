@@ -1,4 +1,4 @@
-package controller
+package config
 
 import (
 	"fmt"
@@ -18,7 +18,7 @@ var defaultConfigPaths = []string{ //nolint:gochecknoglobals
 	".renovate-issue-action.yml",
 }
 
-func findConfig(p string) string {
+func Find(p string) string {
 	if p != "" {
 		return p
 	}
@@ -30,7 +30,7 @@ func findConfig(p string) string {
 	return ""
 }
 
-func readConfig(p string, cfg *Config) error {
+func Read(p string, cfg *Config) error {
 	f, err := os.Open(p)
 	if err != nil {
 		return fmt.Errorf("open a configuration file: %w", err)
@@ -42,7 +42,7 @@ func readConfig(p string, cfg *Config) error {
 	return nil
 }
 
-func setDefaultConfig(cfg *Config) {
+func SetDefault(cfg *Config) {
 	if cfg.RenovateLogin == "" {
 		cfg.RenovateLogin = "renovate[bot]"
 	}

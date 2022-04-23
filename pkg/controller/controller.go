@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/google/go-github/v43/github"
+	"github.com/suzuki-shunsuke/renovate-issue-action/pkg/config"
 	"github.com/suzuki-shunsuke/renovate-issue-action/pkg/domain"
 	"github.com/suzuki-shunsuke/zap-error/logerr"
 	"go.uber.org/zap"
@@ -47,13 +48,13 @@ func (ctrl *Controller) Run(ctx context.Context, logger *zap.Logger, param *RunP
 	if err := readMetadata(pr.GetBody(), metadata); err != nil {
 		return err
 	}
-	cfg := &Config{}
-	if p := findConfig(param.ConfigFilePath); p != "" {
-		if err := readConfig(p, cfg); err != nil {
+	cfg := &config.Config{}
+	if p := config.Find(param.ConfigFilePath); p != "" {
+		if err := config.Read(p, cfg); err != nil {
 			return fmt.Errorf("read a configuration file: %w", logerr.WithFields(err, zap.String("configuration_file_path", p)))
 		}
 	}
-	setDefaultConfig(cfg)
+	config.SetDefault(cfg)
 	logger.Info("get an issue title")
 	title, err := getIssueTitle(cfg, repoOwner, repoName, metadata)
 	if err != nil {
