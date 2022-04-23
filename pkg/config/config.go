@@ -1,49 +1,39 @@
 package config
 
-import (
-	"fmt"
-	"os"
-
-	"gopkg.in/yaml.v2"
-)
-
 type Config struct {
 	RenovateLogin string `yaml:"renovate_login"`
+	Issue         *Issue
 }
 
-var defaultConfigPaths = []string{ //nolint:gochecknoglobals
-	"renovate-issue-action.yaml",
-	"renovate-issue-action.yml",
-	".renovate-issue-action.yaml",
-	".renovate-issue-action.yml",
+type Issue struct {
+	Title             string
+	DescriptionHeader string `yaml:"description_header"`
+	DescriptionBody   string `yaml:"description_body"`
+	Labels            []string
+	Assignees         []string
+	Projects          []string
 }
 
-func Find(p string) string {
-	if p != "" {
-		return p
-	}
-	for _, p := range defaultConfigPaths {
-		if _, err := os.Stat(p); err == nil {
-			return p
-		}
-	}
-	return ""
-}
+const defaultIssueTitleTemplate = `Renovate Automerge Failure({{.RepoOwner}}/{{.RepoName}}): {{if .Metadata.GroupName}}{{.Metadata.GroupName}}{{else}}{{.Metadata.PackageName}}{{.Metadata.DepName}}{{end}} {{if .Metadata.PackageFileDir}}({{.Metadata.PackageFileDir}}){{end}}`
 
-func Read(p string, cfg *Config) error {
-	f, err := os.Open(p)
-	if err != nil {
-		return fmt.Errorf("open a configuration file: %w", err)
-	}
-	defer f.Close()
-	if err := yaml.NewDecoder(f).Decode(cfg); err != nil {
-		return fmt.Errorf("parse configuration file as YAML: %w", err)
-	}
-	return nil
-}
+const defaultIssueDescriptionHeader = `
+_This pull request was created by [renovate-issue-action](https://github.com/suzuki-shunsuke/renovate-issue-action)._
+
+:warning: Please don't edit the Issue title, because renovate-issue-action searches issue with Issue title.
+
+{{if .Metadata.PackageName}}packageName: {{.Metadata.PackageName}}{{end}}
+{{if .Metadata.GroupName}}groupName: {{.Metadata.GroupName}}{{end}}
+{{if .Metadata.DepName}}depName: {{.Metadata.DepName}}{{end}}
+`
 
 func SetDefault(cfg *Config) {
 	if cfg.RenovateLogin == "" {
 		cfg.RenovateLogin = "renovate[bot]"
+	}
+	if cfg.Issue.Title == "" {
+		cfg.Issue.Title = defaultIssueTitleTemplate
+	}
+	if cfg.Issue.DescriptionHeader == "" {
+		cfg.Issue.DescriptionHeader = defaultIssueDescriptionHeader
 	}
 }

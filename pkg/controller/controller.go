@@ -83,7 +83,7 @@ func (ctrl *Controller) Run(ctx context.Context, logger *zap.Logger, param *RunP
 	closedByRenovate := param.GitHubActor == cfg.RenovateLogin
 	logger = logger.With(zap.Bool("closed_by_renovate", closedByRenovate))
 	logger.Info("pr was closed")
-	if err := ctrl.runUnmergedPR(ctx, logger, repoOwner, repoName, title, issue, metadata, prURL, closedByRenovate, buildURL); err != nil {
+	if err := ctrl.runUnmergedPR(ctx, logger, cfg, repoOwner, repoName, title, issue, metadata, prURL, closedByRenovate, buildURL); err != nil {
 		return err
 	}
 	return nil
@@ -109,7 +109,7 @@ func (ctrl *Controller) runMergedPR(ctx context.Context, logger *zap.Logger, rep
 	return nil
 }
 
-func (ctrl *Controller) runUnmergedPR(ctx context.Context, logger *zap.Logger, repoOwner, repoName, title string, issue *domain.Issue, metadata *Metadata, prURL string, closedByRenovate bool, buildURL string) error {
+func (ctrl *Controller) runUnmergedPR(ctx context.Context, logger *zap.Logger, cfg *config.Config, repoOwner, repoName, title string, issue *domain.Issue, metadata *Metadata, prURL string, closedByRenovate bool, buildURL string) error {
 	if closedByRenovate {
 		if issue == nil {
 			return nil
@@ -143,7 +143,11 @@ func (ctrl *Controller) runUnmergedPR(ctx context.Context, logger *zap.Logger, r
 	}
 
 	logger.Info("render an issue body")
-	body, err := renderBody(defaultIssueBodyTemplate, metadata)
+	bodyTemplate := cfg.Issue.DescriptionHeader + `
+` + cfg.Issue.DescriptionBody + `
+## Closed Pull Requests
+`
+	body, err := renderBody(bodyTemplate, metadata)
 	if err != nil {
 		return err
 	}
