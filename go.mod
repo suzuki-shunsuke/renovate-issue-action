@@ -10,7 +10,7 @@ require (
 	github.com/suzuki-shunsuke/zap-error v0.1.0
 	go.uber.org/zap v1.21.0
 	golang.org/x/oauth2 v0.0.0-20180821212333-d2e6202438be
-	gopkg.in/yaml.v2 v2.3.0
+	gopkg.in/yaml.v2 v2.4.0
 )
 
 require (
