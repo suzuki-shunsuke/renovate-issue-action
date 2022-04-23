@@ -12,14 +12,7 @@ import (
 var errMustBeBool = errors.New("must be a boolean")
 
 func CompileBool(s string) (*vm.Program, error) {
-	a, err := expr.Compile(s, expr.AsBool(), expr.Env(map[string]interface{}{
-		"PackageFileDir": "",
-		"PackageName":    "",
-		"GroupName":      "",
-		"DepName":        "",
-		"UpdateType":     "",
-		"Manager":        "",
-	}))
+	a, err := expr.Compile(s, expr.AsBool(), expr.Env(&domain.Metadata{}))
 	if err != nil {
 		return nil, fmt.Errorf("compile an expression: %w", err)
 	}

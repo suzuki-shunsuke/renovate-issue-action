@@ -152,11 +152,7 @@ func (ctrl *Controller) runUnmergedPR(ctx context.Context, logger *zap.Logger, c
 	}
 
 	logger.Info("render an issue body")
-	bodyTemplate := cfg.Issue.DescriptionHeader + `
-` + cfg.Issue.DescriptionBody + `
-## Closed Pull Requests
-`
-	body, err := renderBody(bodyTemplate, metadata)
+	body, err := renderBody(cfg.Issue.Description(), metadata)
 	if err != nil {
 		return err
 	}
@@ -194,6 +190,7 @@ func selectEntry(logger *zap.Logger, entries []*config.Entry, metadata *domain.M
 		prog, err := expr.CompileBool(entry.If)
 		if err != nil {
 			logger.Error("compile entry.if", zap.Int("entry_index", i), zap.Error(err))
+			fmt.Println(err)
 			continue
 		}
 		f, err := expr.RunBool(prog, metadata)
