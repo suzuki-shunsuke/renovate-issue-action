@@ -1,5 +1,9 @@
 package config
 
+import (
+	"github.com/suzuki-shunsuke/renovate-issue-action/pkg/domain"
+)
+
 type Config struct {
 	RenovateLogin string `yaml:"renovate_login"`
 	Issue         *Issue
@@ -28,7 +32,7 @@ _This pull request was created by [renovate-issue-action](https://github.com/suz
 {{if .Metadata.DepName}}depName: {{.Metadata.DepName}}{{end}}
 `
 
-func SetDefault(cfg *Config, repoOwner, repoName string) {
+func SetDefault(cfg *Config, repo *domain.Repo) {
 	if cfg.RenovateLogin == "" {
 		cfg.RenovateLogin = "renovate[bot]"
 	}
@@ -39,9 +43,9 @@ func SetDefault(cfg *Config, repoOwner, repoName string) {
 		cfg.Issue.DescriptionHeader = defaultIssueDescriptionHeader
 	}
 	if cfg.Issue.RepoOwner == "" {
-		cfg.Issue.RepoOwner = repoOwner
+		cfg.Issue.RepoOwner = repo.Owner
 	}
 	if cfg.Issue.RepoName == "" {
-		cfg.Issue.RepoName = repoName
+		cfg.Issue.RepoName = repo.Name
 	}
 }

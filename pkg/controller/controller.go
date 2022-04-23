@@ -40,10 +40,12 @@ func (ctrl *Controller) Run(ctx context.Context, logger *zap.Logger, param *RunP
 	}
 	pr := ev.GetPullRequest()
 	repo := ev.GetRepo()
-	repoOwner := repo.GetOwner().GetLogin()
-	repoName := repo.GetName()
+	prRepo := &domain.Repo{
+		Owner: repo.GetOwner().GetLogin(),
+		Name:  repo.GetName(),
+	}
 	metadata := &Metadata{}
-	logger = logger.With(zap.String("repo_owner", repoOwner), zap.String("repo_name", repoName))
+	logger = logger.With(zap.String("repo_owner", prRepo.Owner), zap.String("repo_name", prRepo.Name))
 	logger.Info("read metadata")
 	if err := readMetadata(pr.GetBody(), metadata); err != nil {
 		return err
@@ -54,9 +56,9 @@ func (ctrl *Controller) Run(ctx context.Context, logger *zap.Logger, param *RunP
 			return fmt.Errorf("read a configuration file: %w", logerr.WithFields(err, zap.String("configuration_file_path", p)))
 		}
 	}
-	config.SetDefault(cfg, repoOwner, repoName)
+	config.SetDefault(cfg, prRepo)
 	logger.Info("get an issue title")
-	title, err := getIssueTitle(cfg, repoOwner, repoName, metadata)
+	title, err := getIssueTitle(cfg, prRepo, metadata)
 	if err != nil {
 		return err
 	}
@@ -72,7 +74,7 @@ func (ctrl *Controller) Run(ctx context.Context, logger *zap.Logger, param *RunP
 		issue = issues[0]
 	}
 	prURL := pr.GetHTMLURL()
-	buildURL := "https://github.com/" + repoOwner + "/" + repoName + "/actions/runs/" + param.GitHubRunID
+	buildURL := "https://github.com/" + prRepo.Owner + "/" + prRepo.Name + "/actions/runs/" + param.GitHubRunID
 	if pr.GetMerged() {
 		logger.Info("pr was merged")
 		if err := ctrl.runMergedPR(ctx, logger, cfg.Issue.RepoOwner, cfg.Issue.RepoName, issue, prURL, buildURL); err != nil {
