@@ -62,6 +62,7 @@ func (cl *client) ListIssues(ctx context.Context, repoOwner, repoName, title str
 				Issue struct {
 					Number githubv4.Int
 					Body   githubv4.String
+					Title  githubv4.String
 				} `graphql:"... on Issue"`
 			}
 		} `graphql:"search(first: 100, query: $searchQuery, type: $searchType)"`
@@ -74,12 +75,16 @@ func (cl *client) ListIssues(ctx context.Context, repoOwner, repoName, title str
 	if err := cl.v4Client.Query(ctx, &q, variables); err != nil {
 		return nil, fmt.Errorf("get an issue by GitHub GraphQL API: %w", err)
 	}
-	issues := make([]*domain.Issue, len(q.Search.Nodes))
-	for i, node := range q.Search.Nodes {
-		issues[i] = &domain.Issue{
+	issues := make([]*domain.Issue, 0, len(q.Search.Nodes))
+	for _, node := range q.Search.Nodes {
+		if title != string(node.Issue.Title) {
+			continue
+		}
+		issue := &domain.Issue{
 			Number: int(node.Issue.Number),
 			Body:   string(node.Issue.Body),
 		}
+		issues = append(issues, issue)
 	}
 	return issues, nil
 }
