@@ -7,17 +7,54 @@ import (
 type Config struct {
 	RenovateLogin string `yaml:"renovate_login"`
 	Issue         *Issue
+	Entries       []*Entry
+}
+
+type Entry struct {
+	Issue *Issue
+	If    string
 }
 
 type Issue struct {
 	RepoOwner         string `yaml:"repo_owner"`
 	RepoName          string `yaml:"repo_name"`
-	Title             string
-	DescriptionHeader string `yaml:"description_header"`
-	DescriptionBody   string `yaml:"description_body"`
+	Title             *string
+	DescriptionHeader *string `yaml:"description_header"`
+	DescriptionBody   *string `yaml:"description_body"`
 	Labels            []string
 	Assignees         []string
 	Projects          []string
+}
+
+func (issue *Issue) Description() string {
+	return domain.GetString(issue.DescriptionHeader) + `
+` + domain.GetString(issue.DescriptionBody) + `
+## Closed Pull Requests
+`
+}
+
+func (issue *Issue) Merge(is *Issue) {
+	if is.RepoOwner != "" {
+		issue.RepoOwner = is.RepoOwner
+	}
+	if is.RepoName != "" {
+		issue.RepoName = is.RepoName
+	}
+	if is.Title != nil {
+		issue.Title = is.Title
+	}
+	if is.DescriptionHeader != nil {
+		issue.DescriptionHeader = is.DescriptionHeader
+	}
+	if is.DescriptionBody != nil {
+		issue.DescriptionBody = is.DescriptionBody
+	}
+	if is.Labels != nil {
+		issue.Labels = is.Labels
+	}
+	if is.Assignees != nil {
+		issue.Assignees = is.Assignees
+	}
 }
 
 const defaultIssueTitleTemplate = `Renovate Automerge Failure({{.RepoOwner}}/{{.RepoName}}): {{if .Metadata.GroupName}}{{.Metadata.GroupName}}{{else}}{{.Metadata.PackageName}}{{.Metadata.DepName}}{{end}} {{if .Metadata.PackageFileDir}}({{.Metadata.PackageFileDir}}){{end}}`
@@ -36,11 +73,11 @@ func SetDefault(cfg *Config, repo *domain.Repo) {
 	if cfg.RenovateLogin == "" {
 		cfg.RenovateLogin = "renovate[bot]"
 	}
-	if cfg.Issue.Title == "" {
-		cfg.Issue.Title = defaultIssueTitleTemplate
+	if domain.GetString(cfg.Issue.Title) == "" {
+		*cfg.Issue.Title = defaultIssueTitleTemplate
 	}
-	if cfg.Issue.DescriptionHeader == "" {
-		cfg.Issue.DescriptionHeader = defaultIssueDescriptionHeader
+	if domain.GetString(cfg.Issue.DescriptionHeader) == "" {
+		*cfg.Issue.DescriptionHeader = defaultIssueDescriptionHeader
 	}
 	if cfg.Issue.RepoOwner == "" {
 		cfg.Issue.RepoOwner = repo.Owner

@@ -111,6 +111,16 @@ issue:
   description_body: "" # By default, empty
   assignees: ["suzuki-shunsuke"] # By default, null
   labels: ["renovate-issue-action"] # By default, null
+entries:
+- if: Metadata.PackageName == "actions/checkout"
+  issue:
+    labels: []
+    assignees: []
+    description_body: |
+      ## What to do
+
+      * Check closed Pull Requests
+      * Fix the problem and update the package
 ```
 
 ### Template
@@ -122,6 +132,26 @@ In the template, [sprig Function](http://masterminds.github.io/sprig/) can be us
 
 * RepoOwner
 * RepoName
+* Metadata
+  * GroupName
+  * PackageName
+  * DepName
+  * PackageFileDir
+
+## Expression
+
+[antonmedv/expr](https://github.com/antonmedv/expr) is used.
+About expr, please see [Language Definition](https://github.com/antonmedv/expr/blob/master/docs/Language-Definition.md) too.
+
+e.g.
+
+```yaml
+entries:
+- if: Metadata.PackageName == "actions/checkout"
+```
+
+### Expression Variables
+
 * Metadata
   * GroupName
   * PackageName
