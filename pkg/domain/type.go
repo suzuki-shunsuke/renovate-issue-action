@@ -18,3 +18,8 @@ type Issue struct {
 	Number int
 	Body   string
 }
+
+type Repo struct {
+	Owner string
+	Name  string
+}
