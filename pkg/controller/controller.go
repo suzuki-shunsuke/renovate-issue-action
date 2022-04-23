@@ -190,7 +190,6 @@ func selectEntry(logger *zap.Logger, entries []*config.Entry, metadata *domain.M
 		prog, err := expr.CompileBool(entry.If)
 		if err != nil {
 			logger.Error("compile entry.if", zap.Int("entry_index", i), zap.Error(err))
-			fmt.Println(err)
 			continue
 		}
 		f, err := expr.RunBool(prog, metadata)

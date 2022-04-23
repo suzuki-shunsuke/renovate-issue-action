@@ -3,6 +3,7 @@ package expr
 import (
 	"errors"
 	"fmt"
+	"os"
 
 	"github.com/antonmedv/expr"
 	"github.com/antonmedv/expr/vm"
@@ -14,6 +15,7 @@ var errMustBeBool = errors.New("must be a boolean")
 func CompileBool(s string) (*vm.Program, error) {
 	a, err := expr.Compile(s, expr.AsBool(), expr.Env(&domain.Metadata{}))
 	if err != nil {
+		fmt.Fprintf(os.Stderr, "[ERROR] compile an expression\n%+v", err)
 		return nil, fmt.Errorf("compile an expression: %w", err)
 	}
 	return a, nil
@@ -22,6 +24,7 @@ func CompileBool(s string) (*vm.Program, error) {
 func RunBool(prog *vm.Program, metadata *domain.Metadata) (bool, error) {
 	a, err := expr.Run(prog, metadata)
 	if err != nil {
+		fmt.Fprintf(os.Stderr, "[ERROR] evaluate an expression\n%+v", err)
 		return false, fmt.Errorf("evaluate an expression: %w", err)
 	}
 	f, ok := a.(bool)
