@@ -11,7 +11,7 @@ type Config struct {
 	RenovateLogin string `yaml:"renovate_login"`
 }
 
-var defaultConfigPaths []string = []string{
+var defaultConfigPaths = []string{ //nolint:gochecknoglobals
 	"renovate-issue-action.yaml",
 	"renovate-issue-action.yml",
 	".renovate-issue-action.yaml",

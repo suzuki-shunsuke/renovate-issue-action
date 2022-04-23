@@ -32,7 +32,7 @@ type RunParam struct {
 	ConfigFilePath  string
 }
 
-func (ctrl *Controller) Run(ctx context.Context, logger *zap.Logger, param *RunParam) error {
+func (ctrl *Controller) Run(ctx context.Context, logger *zap.Logger, param *RunParam) error { //nolint:funlen,cyclop
 	ev := &github.PullRequestEvent{}
 	if err := readPayload(param.GitHubEventPath, ev); err != nil {
 		return err
@@ -50,7 +50,7 @@ func (ctrl *Controller) Run(ctx context.Context, logger *zap.Logger, param *RunP
 	cfg := &Config{}
 	if p := findConfig(param.ConfigFilePath); p != "" {
 		if err := readConfig(p, cfg); err != nil {
-			return logerr.WithFields(fmt.Errorf("read a configuration file: %w", err), zap.String("configuration_file_path", p))
+			return fmt.Errorf("read a configuration file: %w", logerr.WithFields(err, zap.String("configuration_file_path", p)))
 		}
 	}
 	setDefaultConfig(cfg)
@@ -93,15 +93,14 @@ This comment is created by [renovate-issue-action](https://github.com/suzuki-shu
 
 func (ctrl *Controller) runMergedPR(ctx context.Context, logger *zap.Logger, repoOwner, repoName string, issue *domain.Issue, prURL, buildURL string) error {
 	if issue != nil {
-		issueNumber := int(issue.Number)
 		logger.Info("close an issue")
-		cmt, err := ctrl.github.CreateComment(ctx, repoOwner, repoName, issueNumber, fmt.Sprintf(closeIssueCommentTemplate, prURL, buildURL))
+		cmt, err := ctrl.github.CreateComment(ctx, repoOwner, repoName, issue.Number, fmt.Sprintf(closeIssueCommentTemplate, prURL, buildURL))
 		if err != nil {
 			logger.Error("create an issue comment", zap.Error(err))
 		} else {
 			logger.Info("create an issue comment", zap.String("comment_url", cmt.GetHTMLURL()))
 		}
-		if err := ctrl.github.CloseIssue(ctx, repoOwner, repoName, int(issue.Number)); err != nil {
+		if err := ctrl.github.CloseIssue(ctx, repoOwner, repoName, issue.Number); err != nil {
 			return fmt.Errorf("close an issue: %w", err)
 		}
 		return nil
@@ -110,33 +109,31 @@ func (ctrl *Controller) runMergedPR(ctx context.Context, logger *zap.Logger, rep
 }
 
 func (ctrl *Controller) runUnmergedPR(ctx context.Context, logger *zap.Logger, repoOwner, repoName, title string, issue *domain.Issue, metadata *Metadata, prURL string, closedByRenovate bool, buildURL string) error {
-	issueNumber := int(issue.Number)
-	body := string(issue.Body)
 	if closedByRenovate {
-		if issue != nil {
-			logger.Info("close an issue")
-			cmt, err := ctrl.github.CreateComment(ctx, repoOwner, repoName, issueNumber, fmt.Sprintf(closeIssueCommentTemplate, prURL, buildURL))
-			if err != nil {
-				logger.Error("create an issue comment", zap.Error(err))
-			} else {
-				logger.Info("create an issue comment", zap.String("comment_url", cmt.GetHTMLURL()))
-			}
-			if err := ctrl.github.CloseIssue(ctx, repoOwner, repoName, issueNumber); err != nil {
-				return fmt.Errorf("close an issue: %w", err)
-			}
+		if issue == nil {
 			return nil
+		}
+		logger.Info("close an issue")
+		cmt, err := ctrl.github.CreateComment(ctx, repoOwner, repoName, issue.Number, fmt.Sprintf(closeIssueCommentTemplate, prURL, buildURL))
+		if err != nil {
+			logger.Error("create an issue comment", zap.Error(err))
+		} else {
+			logger.Info("create an issue comment", zap.String("comment_url", cmt.GetHTMLURL()))
+		}
+		if err := ctrl.github.CloseIssue(ctx, repoOwner, repoName, issue.Number); err != nil {
+			return fmt.Errorf("close an issue: %w", err)
 		}
 		return nil
 	}
 	if issue != nil {
 		// If issue is found, update issue description.
-		if strings.Contains(body, prURL) {
+		if strings.Contains(issue.Body, prURL) {
 			logger.Info("the pull request URL is already included in the issue, so skip updating the issue")
 			return nil
 		}
 		logger.Info("update an issue")
-		if err := ctrl.github.UpdateIssue(ctx, repoOwner, repoName, issueNumber, &github.IssueRequest{
-			Body: github.String(body + `
+		if err := ctrl.github.UpdateIssue(ctx, repoOwner, repoName, issue.Number, &github.IssueRequest{
+			Body: github.String(issue.Body + `
 * ` + prURL),
 		}); err != nil {
 			return fmt.Errorf("update an issue: %w", err)

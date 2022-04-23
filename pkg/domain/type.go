@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/google/go-github/v43/github"
-	"github.com/shurcooL/githubv4"
 )
 
 type GitHub interface {
@@ -16,6 +15,6 @@ type GitHub interface {
 }
 
 type Issue struct {
-	Number githubv4.Int
-	Body   githubv4.String
+	Number int
+	Body   string
 }

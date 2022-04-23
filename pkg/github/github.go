@@ -59,7 +59,10 @@ func (cl *client) ListIssues(ctx context.Context, repoOwner, repoName, title str
 	var q struct {
 		Search struct {
 			Nodes []struct {
-				domain.Issue `graphql:"... on Issue"`
+				Issue struct {
+					Number githubv4.Int
+					Body   githubv4.String
+				} `graphql:"... on Issue"`
 			}
 		} `graphql:"search(first: 100, query: $searchQuery, type: $searchType)"`
 	}
@@ -73,7 +76,10 @@ func (cl *client) ListIssues(ctx context.Context, repoOwner, repoName, title str
 	}
 	issues := make([]*domain.Issue, len(q.Search.Nodes))
 	for i, node := range q.Search.Nodes {
-		issues[i] = &node.Issue
+		issues[i] = &domain.Issue{
+			Number: int(node.Issue.Number),
+			Body:   string(node.Issue.Body),
+		}
 	}
 	return issues, nil
 }
