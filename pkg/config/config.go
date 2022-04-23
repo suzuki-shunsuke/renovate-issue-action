@@ -5,28 +5,28 @@ import (
 )
 
 type Config struct {
-	RenovateLogin string `yaml:"renovate_login"`
-	Issue         *Issue
-	Entries       []*Entry
+	RenovateLogin string   `yaml:"renovate_login,omitempty" jsonschema:"default=renovate[bot]"`
+	Issue         *Issue   `json:"issue,omitempty"`
+	Entries       []*Entry `json:"entries,omitempty"`
 }
 
 type Entry struct {
-	Issue  *Issue
-	If     string
-	Ignore bool
+	Issue  *Issue `json:"issue"`
+	If     string `json:"if"`
+	Ignore bool   `json:"ignore,omitempty"`
 }
 
 type Issue struct {
-	RepoOwner           string `yaml:"repo_owner"`
-	RepoName            string `yaml:"repo_name"`
-	Title               *string
-	DescriptionHeader   *string `yaml:"description_header"`
-	DescriptionBody     *string `yaml:"description_body"`
-	Labels              []string
-	AdditionalLabels    []string `yaml:"additional_labels"`
-	Assignees           []string
-	AdditionalAssignees []string `yaml:"additional_assignees"`
-	Projects            []string
+	RepoOwner           string   `yaml:"repo_owner,omitempty"`
+	RepoName            string   `yaml:"repo_name,omitempty"`
+	Title               *string  `json:"title,omitempty"`
+	DescriptionHeader   *string  `yaml:"description_header,omitempty"`
+	DescriptionBody     *string  `yaml:"description_body,omitempty"`
+	Labels              []string `json:"labels,omitempty"`
+	AdditionalLabels    []string `yaml:"additional_labels,omitempty"`
+	Assignees           []string `json:"assignees,omitempty"`
+	AdditionalAssignees []string `yaml:"additional_assignees,omitempty"`
+	// Projects            []string `json:"projects,omitempty"`
 }
 
 func (issue *Issue) Merge(is *Issue) {
