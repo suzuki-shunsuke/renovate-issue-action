@@ -92,7 +92,7 @@ You can specify configuration file path with the command line option `--config, 
 $ renovate-issue-action --config config.yaml
 ```
 
-renovate-issue-action.yaml
+e.g. renovate-issue-action.yaml
 
 ```yaml
 renovate_login: 'renovate[bot]' # By default, 'renovate[bot]'
@@ -123,6 +123,10 @@ entries:
       * Fix the problem and update the package
 - if: Metadata.PackageName == "actions/cache"
   ignore: true # If `ignore` is true, do nothing.
+- if: |
+    "sre" in Labels
+  issue:
+    repo_name: sre-issues
 ```
 
 ### Template
@@ -159,6 +163,7 @@ entries:
   * PackageName
   * DepName
   * PackageFileDir
+* Labels []string: Pull Request Label Names
 
 ### Environment variable
 

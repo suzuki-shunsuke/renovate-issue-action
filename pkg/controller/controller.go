@@ -59,7 +59,10 @@ func (ctrl *Controller) Run(ctx context.Context, logger *zap.Logger, param *RunP
 	}
 	config.SetDefault(cfg, prRepo)
 	logger.Info("select an entry")
-	entry := selectEntry(logger, cfg.Entries, metadata)
+	entry := selectEntry(logger, cfg.Entries, &expr.Param{
+		Metadata: metadata,
+		Labels:   getLabelsFromPR(pr),
+	})
 	if entry != nil {
 		if entry.Ignore {
 			logger.Info("do nothing because entry.ignore is true")
@@ -189,16 +192,14 @@ func readPayload(p string, ev *github.PullRequestEvent) error {
 	return nil
 }
 
-func selectEntry(logger *zap.Logger, entries []*config.Entry, metadata *domain.Metadata) *config.Entry {
+func selectEntry(logger *zap.Logger, entries []*config.Entry, param *expr.Param) *config.Entry {
 	for i, entry := range entries {
 		prog, err := expr.CompileBool(entry.If)
 		if err != nil {
 			logger.Error("compile entry.if", zap.Int("entry_index", i), zap.Error(err))
 			continue
 		}
-		f, err := expr.RunBool(prog, &expr.Param{
-			Metadata: metadata,
-		})
+		f, err := expr.RunBool(prog, param)
 		if err != nil {
 			logger.Error("evaluate entry.if", zap.Int("entry_index", i), zap.Error(err))
 			continue
@@ -208,4 +209,12 @@ func selectEntry(logger *zap.Logger, entries []*config.Entry, metadata *domain.M
 		}
 	}
 	return nil
+}
+
+func getLabelsFromPR(pr *github.PullRequest) []string {
+	labels := make([]string, len(pr.Labels))
+	for i, label := range pr.Labels {
+		labels[i] = label.GetName()
+	}
+	return labels
 }

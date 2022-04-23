@@ -14,6 +14,7 @@ var errMustBeBool = errors.New("must be a boolean")
 
 type Param struct {
 	Metadata *domain.Metadata
+	Labels   []string
 }
 
 func CompileBool(s string) (*vm.Program, error) {
