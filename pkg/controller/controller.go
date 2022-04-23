@@ -61,6 +61,10 @@ func (ctrl *Controller) Run(ctx context.Context, logger *zap.Logger, param *RunP
 	logger.Info("select an entry")
 	entry := selectEntry(logger, cfg.Entries, metadata)
 	if entry != nil {
+		if entry.Ignore {
+			logger.Info("do nothing because entry.ignore is true")
+			return nil
+		}
 		cfg.Issue.Merge(entry.Issue)
 	}
 
