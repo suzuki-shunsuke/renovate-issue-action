@@ -95,10 +95,10 @@ $ renovate-issue-action --config config.yaml
 renovate-issue-action.yaml
 
 ```yaml
-renovate_login: 'renovate[bot]'
+renovate_login: 'renovate[bot]' # By default, 'renovate[bot]'
 issue:
-  repo_owner: ""
-  repo_name: ""
+  repo_owner: suzuki-shunsuke # By default, the repository which GitHub Actions is run
+  repo_name: renovate-issue-action # By default, the repository which GitHub Actions is run
   title: 'Renovate Automerge Failure({{.RepoOwner}}/{{.RepoName}}): {{if .Metadata.GroupName}}{{.Metadata.GroupName}}{{else}}{{.Metadata.PackageName}}{{.Metadata.DepName}}{{end}} {{if .Metadata.PackageFileDir}}({{.Metadata.PackageFileDir}}){{end}}'
   description_header: |
     _This pull request was created by [renovate-issue-action](https://github.com/suzuki-shunsuke/renovate-issue-action)._
@@ -108,7 +108,8 @@ issue:
     {{if .Metadata.PackageName}}packageName: {{.Metadata.PackageName}}{{end}}
     {{if .Metadata.GroupName}}groupName: {{.Metadata.GroupName}}{{end}}
     {{if .Metadata.DepName}}depName: {{.Metadata.DepName}}{{end}}
-  description_body: ""
+  description_body: "" # By default, empty
+  assignees: ["suzuki-shunsuke"] # By default, null
 ```
 
 ### Template
