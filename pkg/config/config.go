@@ -6,6 +6,8 @@ type Config struct {
 }
 
 type Issue struct {
+	RepoOwner         string `yaml:"repo_owner"`
+	RepoName          string `yaml:"repo_name"`
 	Title             string
 	DescriptionHeader string `yaml:"description_header"`
 	DescriptionBody   string `yaml:"description_body"`
@@ -26,7 +28,7 @@ _This pull request was created by [renovate-issue-action](https://github.com/suz
 {{if .Metadata.DepName}}depName: {{.Metadata.DepName}}{{end}}
 `
 
-func SetDefault(cfg *Config) {
+func SetDefault(cfg *Config, repoOwner, repoName string) {
 	if cfg.RenovateLogin == "" {
 		cfg.RenovateLogin = "renovate[bot]"
 	}
@@ -35,5 +37,11 @@ func SetDefault(cfg *Config) {
 	}
 	if cfg.Issue.DescriptionHeader == "" {
 		cfg.Issue.DescriptionHeader = defaultIssueDescriptionHeader
+	}
+	if cfg.Issue.RepoOwner == "" {
+		cfg.Issue.RepoOwner = repoOwner
+	}
+	if cfg.Issue.RepoName == "" {
+		cfg.Issue.RepoName = repoName
 	}
 }
