@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/suzuki-shunsuke/renovate-issue-action/pkg/config/config",
+  "$ref": "#/$defs/Config",
+  "$defs": {
+    "Config": {
+      "properties": {
+        "renovate_login": {
+          "type": "string"
+        },
+        "issue": {
+          "$ref": "#/$defs/Issue"
+        },
+        "entries": {
+          "items": {
+            "$ref": "#/$defs/Entry"
+          },
+          "type": "array"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "Entry": {
+      "properties": {
+        "issue": {
+          "$ref": "#/$defs/Issue"
+        },
+        "if": {
+          "type": "string"
+        },
+        "ignore": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "issue",
+        "if"
+      ]
+    },
+    "Issue": {
+      "properties": {
+        "repo_owner": {
+          "type": "string"
+        },
+        "repo_name": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "description_header": {
+          "type": "string"
+        },
+        "description_body": {
+          "type": "string"
+        },
+        "labels": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "additional_labels": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "assignees": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "additional_assignees": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    }
+  }
+}

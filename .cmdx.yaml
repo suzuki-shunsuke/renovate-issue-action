@@ -41,3 +41,16 @@ tasks:
   description: google/wire
   usage: google/wire
   script: "wire ./..."
+- name: js
+  description: Generate JSON Schema
+  usage: Generate JSON Schema
+  script: "go run ./cmd/gen-jsonschema"
+- name: validate-js
+  description: Validate renovate-issue-action.yaml with JSON Schema
+  usage: Validate renovate-issue-action.yaml with JSON Schema
+  # https://ajv.js.org/packages/ajv-cli.html
+  args:
+  - name: target
+    default: renovate-issue-action.yaml
+  script: |
+    ajv --spec=draft2020 -s json-schema/config.json -d "{{.target}}"
