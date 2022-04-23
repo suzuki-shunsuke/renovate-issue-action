@@ -3,6 +3,7 @@ package cli
 import (
 	"context"
 	"flag"
+	"fmt"
 	"io"
 	"os"
 
@@ -25,10 +26,36 @@ type LDFlags struct {
 	Date    string
 }
 
-func parseFlag(param *controller.RunParam) {
+func (flags *LDFlags) ShowVersion() string {
+	if flags.Version == "" {
+		if flags.Commit == "" {
+			return ""
+		}
+		return flags.Commit
+	}
+	return flags.Version + " (" + flags.Commit + ")"
+}
+
+func parseFlag(param *controller.RunParam, verFlag, helpFlag *bool) {
 	flag.StringVar(&param.ConfigFilePath, "config", "", "configuration file path")
+	flag.BoolVar(verFlag, "version", false, "show renovate-issue-action's version")
+	flag.BoolVar(helpFlag, "help", false, "show the help message")
 	flag.Parse()
 }
+
+const helpMsg = `NAME:
+   renovate-issue-action - Create, update, and close GitHub Issues with GitHub Actions according to Renovate Pull Requests
+
+USAGE:
+   renovate-issue-action [--help] [--version] [--config <configuration file path>]
+
+VERSION:
+   %s
+
+OPTIONS:
+   --config value   configuration file path [$AQUA_CONFIG]
+   --help           show help (default: false)
+   --version        print the version (default: false)`
 
 func (runner *Runner) Run(ctx context.Context, logger *zap.Logger, args ...string) error {
 	httpClient := github.NewHTTPClient(ctx, os.Getenv("GITHUB_TOKEN"))
@@ -38,6 +65,15 @@ func (runner *Runner) Run(ctx context.Context, logger *zap.Logger, args ...strin
 		GitHubActor:     os.Getenv("GITHUB_ACTOR"),
 		GitHubRunID:     os.Getenv("GITHUB_RUN_ID"),
 	}
-	parseFlag(param)
+	verFlag, helpFlag := false, false
+	parseFlag(param, &verFlag, &helpFlag)
+	if helpFlag {
+		fmt.Fprintf(runner.Stdout, helpMsg, runner.LDFlags.ShowVersion())
+		return nil
+	}
+	if verFlag {
+		fmt.Fprintln(runner.Stdout, runner.LDFlags.ShowVersion())
+		return nil
+	}
 	return ctrl.Run(ctx, logger, param) //nolint:wrapcheck
 }
