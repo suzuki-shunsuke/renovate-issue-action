@@ -111,6 +111,16 @@ issue:
   description_body: "" # By default, empty
   assignees: ["suzuki-shunsuke"] # By default, null
   labels: ["renovate-issue-action"] # By default, null
+entries:
+- if: Metadata.PackageName == "actions/checkout"
+  issue:
+    labels: []
+    assignees: []
+    description_body: |
+      ## What to do
+
+      * Check closed Pull Requests
+      * Fix the problem and update the package
 ```
 
 ### Template

@@ -192,7 +192,9 @@ func selectEntry(logger *zap.Logger, entries []*config.Entry, metadata *domain.M
 			logger.Error("compile entry.if", zap.Int("entry_index", i), zap.Error(err))
 			continue
 		}
-		f, err := expr.RunBool(prog, metadata)
+		f, err := expr.RunBool(prog, &expr.Param{
+			Metadata: metadata,
+		})
 		if err != nil {
 			logger.Error("evaluate entry.if", zap.Int("entry_index", i), zap.Error(err))
 			continue
