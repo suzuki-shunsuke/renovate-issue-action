@@ -113,6 +113,14 @@ The following permissions are required.
 
 * `issues:write`
 
+## Question (GitHub Discussions)
+
+If you have any question, please create a Discussion. https://github.com/suzuki-shunsuke/renovate-issue-action/discussions
+
+## Versioning Policy
+
+[suzuki-shunsuke/versioning-policy v0.1.0](https://github.com/suzuki-shunsuke/versioning-policy/blob/v0.1.0/POLICY.md), which is compatible with [Semantic Versioning 2.0.0](https://semver.org/).
+
 ## LICENSE
 
 [MIT](LICENSE)
