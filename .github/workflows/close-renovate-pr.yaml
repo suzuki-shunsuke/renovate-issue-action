@@ -16,4 +16,3 @@ jobs:
     - run: renovate-issue-action
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        EVENT_PAYLOAD: ${{ github.event }}
