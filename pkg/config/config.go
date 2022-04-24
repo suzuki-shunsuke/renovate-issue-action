@@ -61,6 +61,27 @@ func (issue *Issue) Merge(is *Issue) {
 	issue.AdditionalAssignees = append(issue.AdditionalAssignees, is.AdditionalAssignees...)
 }
 
+func SetDefault(cfg *Config, repo *domain.Repo) {
+	if cfg.RenovateLogin == "" {
+		cfg.RenovateLogin = "renovate[bot]"
+	}
+	if domain.GetString(cfg.Issue.Title) == "" {
+		*cfg.Issue.Title = defaultIssueTitleTemplate
+	}
+	if domain.GetString(cfg.Issue.DescriptionHeader) == "" {
+		*cfg.Issue.DescriptionHeader = defaultIssueDescriptionHeader
+	}
+	if cfg.Issue.RepoOwner == "" {
+		cfg.Issue.RepoOwner = repo.Owner
+	}
+	if cfg.Issue.RepoName == "" {
+		cfg.Issue.RepoName = repo.Name
+	}
+	if cfg.Issue.Labels == nil {
+		cfg.Issue.Labels = []string{"renovate-issue-action"}
+	}
+}
+
 func (issue *Issue) Description() string {
 	return domain.GetString(issue.DescriptionHeader) + `
 ` + domain.GetString(issue.DescriptionBody) + `
@@ -79,21 +100,3 @@ _This pull request was created by [renovate-issue-action](https://github.com/suz
 {{if .Metadata.GroupName}}groupName: {{.Metadata.GroupName}}{{end}}
 {{if .Metadata.DepName}}depName: {{.Metadata.DepName}}{{end}}
 `
-
-func SetDefault(cfg *Config, repo *domain.Repo) {
-	if cfg.RenovateLogin == "" {
-		cfg.RenovateLogin = "renovate[bot]"
-	}
-	if domain.GetString(cfg.Issue.Title) == "" {
-		*cfg.Issue.Title = defaultIssueTitleTemplate
-	}
-	if domain.GetString(cfg.Issue.DescriptionHeader) == "" {
-		*cfg.Issue.DescriptionHeader = defaultIssueDescriptionHeader
-	}
-	if cfg.Issue.RepoOwner == "" {
-		cfg.Issue.RepoOwner = repo.Owner
-	}
-	if cfg.Issue.RepoName == "" {
-		cfg.Issue.RepoName = repo.Name
-	}
-}
