@@ -6,7 +6,8 @@
     "Config": {
       "properties": {
         "renovate_login": {
-          "type": "string"
+          "type": "string",
+          "default": "renovate[bot]"
         },
         "issue": {
           "$ref": "#/$defs/Issue"
@@ -31,6 +32,12 @@
         },
         "ignore": {
           "type": "boolean"
+        },
+        "vars": {
+          "items": {
+            "$ref": "#/$defs/Var"
+          },
+          "type": "array"
         }
       },
       "additionalProperties": false,
@@ -84,6 +91,20 @@
       },
       "additionalProperties": false,
       "type": "object"
+    },
+    "Var": {
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "value": true
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "name",
+        "value"
+      ]
     }
   }
 }
