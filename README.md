@@ -5,11 +5,6 @@ Especially, this tool is useful for the usecase which you have to handle a numbe
 
 <img width="1068" alt="image" src="https://user-images.githubusercontent.com/13323303/164878956-45d9ba65-436b-48a8-ae7d-d76712822007.png">
 
-## :warning: Don't use this yet
-
-This is still under development.
-The development status is alpha.
-
 ## Document
 
 https://suzuki-shunsuke.github.io/renovate-issue-action/
