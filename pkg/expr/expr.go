@@ -18,7 +18,7 @@ type Param struct {
 	Vars     map[string]interface{}
 }
 
-func CompileBool(s string) (*vm.Program, error) {
+func compileBool(s string) (*vm.Program, error) {
 	a, err := expr.Compile(s, expr.AsBool(), expr.Env(&Param{}))
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "[ERROR] compile an expression\n%+v", err)
@@ -27,7 +27,7 @@ func CompileBool(s string) (*vm.Program, error) {
 	return a, nil
 }
 
-func RunBool(prog *vm.Program, param *Param) (bool, error) {
+func runBool(prog *vm.Program, param *Param) (bool, error) {
 	a, err := expr.Run(prog, param)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "[ERROR] evaluate an expression\n%+v", err)
@@ -38,4 +38,12 @@ func RunBool(prog *vm.Program, param *Param) (bool, error) {
 		return false, errMustBeBool
 	}
 	return f, nil
+}
+
+func ExecBool(s string, param *Param) (bool, error) {
+	prog, err := compileBool(s)
+	if err != nil {
+		return false, err
+	}
+	return runBool(prog, param)
 }
