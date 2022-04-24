@@ -8,7 +8,7 @@ import (
 	"github.com/Masterminds/sprig/v3"
 )
 
-func Parse(s string) (*template.Template, error) {
+func parse(s string) (*template.Template, error) {
 	tpl, err := template.New("_").Funcs(sprig.TxtFuncMap()).Parse(s)
 	if err != nil {
 		return nil, fmt.Errorf("parse a string with Go's text/template: %w", err)
@@ -16,7 +16,7 @@ func Parse(s string) (*template.Template, error) {
 	return tpl, nil
 }
 
-func Execute(tpl *template.Template, param interface{}) (string, error) {
+func execute(tpl *template.Template, param interface{}) (string, error) {
 	if tpl == nil {
 		return "", nil
 	}
@@ -28,9 +28,9 @@ func Execute(tpl *template.Template, param interface{}) (string, error) {
 }
 
 func Render(s string, param interface{}) (string, error) {
-	tpl, err := Parse(s)
+	tpl, err := parse(s)
 	if err != nil {
 		return "", fmt.Errorf("parse a template: %w", err)
 	}
-	return Execute(tpl, param)
+	return execute(tpl, param)
 }
