@@ -194,16 +194,11 @@ func readPayload(p string, ev *github.PullRequestEvent) error {
 
 func selectEntry(logger *zap.Logger, entries []*config.Entry, param *expr.Param) *config.Entry {
 	for i, entry := range entries {
-		prog, err := expr.CompileBool(entry.If)
-		if err != nil {
-			logger.Error("compile entry.if", zap.Int("entry_index", i), zap.Error(err))
-			continue
-		}
 		vars := make(map[string]interface{}, len(entry.Vars))
 		for _, v := range entry.Vars {
 			vars[v.Name] = v.Value
 		}
-		f, err := expr.RunBool(prog, &expr.Param{
+		f, err := expr.ExecBool(entry.If, &expr.Param{
 			Metadata: param.Metadata,
 			Labels:   param.Labels,
 			Vars:     vars,
