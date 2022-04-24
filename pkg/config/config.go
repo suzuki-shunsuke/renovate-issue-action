@@ -14,6 +14,12 @@ type Entry struct {
 	Issue  *Issue `json:"issue"`
 	If     string `json:"if"`
 	Ignore bool   `json:"ignore,omitempty"`
+	Vars   []*Var `json:"vars,omitempty"`
+}
+
+type Var struct {
+	Name  string      `json:"name"`
+	Value interface{} `json:"value"`
 }
 
 type Issue struct {

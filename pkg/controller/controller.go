@@ -199,7 +199,15 @@ func selectEntry(logger *zap.Logger, entries []*config.Entry, param *expr.Param)
 			logger.Error("compile entry.if", zap.Int("entry_index", i), zap.Error(err))
 			continue
 		}
-		f, err := expr.RunBool(prog, param)
+		vars := make(map[string]interface{}, len(entry.Vars))
+		for _, v := range entry.Vars {
+			vars[v.Name] = v.Value
+		}
+		f, err := expr.RunBool(prog, &expr.Param{
+			Metadata: param.Metadata,
+			Labels:   param.Labels,
+			Vars:     vars,
+		})
 		if err != nil {
 			logger.Error("evaluate entry.if", zap.Int("entry_index", i), zap.Error(err))
 			continue
