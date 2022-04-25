@@ -65,10 +65,21 @@ func SetDefault(cfg *Config, repo *domain.Repo) {
 	if cfg.RenovateLogin == "" {
 		cfg.RenovateLogin = "renovate[bot]"
 	}
+	if cfg.Issue == nil {
+		cfg.Issue = &Issue{}
+	}
 	if domain.GetString(cfg.Issue.Title) == "" {
+		if cfg.Issue.Title == nil {
+			s := ""
+			cfg.Issue.Title = &s
+		}
 		*cfg.Issue.Title = defaultIssueTitleTemplate
 	}
 	if domain.GetString(cfg.Issue.DescriptionHeader) == "" {
+		if cfg.Issue.DescriptionHeader == nil {
+			s := ""
+			cfg.Issue.DescriptionHeader = &s
+		}
 		*cfg.Issue.DescriptionHeader = defaultIssueDescriptionHeader
 	}
 	if cfg.Issue.RepoOwner == "" {
@@ -89,7 +100,7 @@ func (issue *Issue) Description() string {
 `
 }
 
-const defaultIssueTitleTemplate = `renovate-issue-action ({{.RepoOwner}}/{{.RepoName}}): {{if .Metadata.GroupName}}{{.Metadata.GroupName}}{{else}}{{.Metadata.PackageName}}{{.Metadata.DepName}}{{end}} {{if .Metadata.PackageFileDir}}({{.Metadata.PackageFileDir}}){{end}} {{if eq .Metadata.UpdateType "major"}}major{{end}}`
+const defaultIssueTitleTemplate = `renovate-issue-action ({{.RepoOwner}}/{{.RepoName}}): {{if .Metadata.GroupName}}{{.Metadata.GroupName}}{{else}}{{.Metadata.PackageName}}{{.Metadata.DepName}}{{end}}{{if .Metadata.PackageFileDir}} ({{.Metadata.PackageFileDir}}){{end}}{{if eq .Metadata.UpdateType "major"}} major{{end}}`
 
 const defaultIssueDescriptionHeader = `
 _This pull request was created by [renovate-issue-action](https://github.com/suzuki-shunsuke/renovate-issue-action)._
