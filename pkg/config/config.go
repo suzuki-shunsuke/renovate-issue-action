@@ -65,10 +65,21 @@ func SetDefault(cfg *Config, repo *domain.Repo) {
 	if cfg.RenovateLogin == "" {
 		cfg.RenovateLogin = "renovate[bot]"
 	}
+	if cfg.Issue == nil {
+		cfg.Issue = &Issue{}
+	}
 	if domain.GetString(cfg.Issue.Title) == "" {
+		if cfg.Issue.Title == nil {
+			s := ""
+			cfg.Issue.Title = &s
+		}
 		*cfg.Issue.Title = defaultIssueTitleTemplate
 	}
 	if domain.GetString(cfg.Issue.DescriptionHeader) == "" {
+		if cfg.Issue.DescriptionHeader == nil {
+			s := ""
+			cfg.Issue.DescriptionHeader = &s
+		}
 		*cfg.Issue.DescriptionHeader = defaultIssueDescriptionHeader
 	}
 	if cfg.Issue.RepoOwner == "" {
