@@ -10,7 +10,7 @@ require (
 	github.com/invopop/jsonschema v0.4.0
 	github.com/shurcooL/githubv4 v0.0.0-20220115235240-a14260e6f8a2
 	github.com/spf13/pflag v1.0.5
-	github.com/suzuki-shunsuke/zap-error v0.1.0
+	github.com/suzuki-shunsuke/zap-error v0.1.1
 	go.uber.org/zap v1.21.0
 	golang.org/x/oauth2 v0.0.0-20220411215720-9780585627b5
 	gopkg.in/yaml.v2 v2.4.0
