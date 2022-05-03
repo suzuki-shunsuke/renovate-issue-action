@@ -32,3 +32,16 @@ type Metadata struct {
 	UpdateType     string `json:"updateType"`
 	Manager        string `json:"manager"`
 }
+
+func (meta *Metadata) Name() string {
+	if meta.GroupName != "" {
+		return meta.GroupName
+	}
+	if meta.PackageName != "" {
+		return meta.PackageName
+	}
+	if meta.DepName != "" {
+		return meta.DepName
+	}
+	return ""
+}
