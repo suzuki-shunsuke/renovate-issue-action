@@ -17,6 +17,12 @@
             "$ref": "#/$defs/Entry"
           },
           "type": "array"
+        },
+        "projects": {
+          "items": {
+            "$ref": "#/$defs/Project"
+          },
+          "type": "array"
         }
       },
       "additionalProperties": false,
@@ -64,6 +70,9 @@
         "description_body": {
           "type": "string"
         },
+        "additional_body": {
+          "type": "string"
+        },
         "labels": {
           "items": {
             "type": "string"
@@ -87,10 +96,34 @@
             "type": "string"
           },
           "type": "array"
+        },
+        "projects": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
         }
       },
       "additionalProperties": false,
       "type": "object"
+    },
+    "Project": {
+      "properties": {
+        "alias": {
+          "type": "string"
+        },
+        "next_id": {
+          "type": "string"
+        },
+        "column_id": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "alias"
+      ]
     },
     "Var": {
       "properties": {
