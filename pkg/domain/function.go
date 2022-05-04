@@ -1,5 +1,7 @@
 package domain
 
+import "strings"
+
 func GetString(s *string) string {
 	if s == nil {
 		return ""
@@ -12,4 +14,15 @@ func GetStringSlicePointer(arr []string) *[]string {
 		return nil
 	}
 	return &arr
+}
+
+func JoinBody(arr ...string) string {
+	list := []string{}
+	for _, s := range arr {
+		if s == "" {
+			continue
+		}
+		list = append(list, s)
+	}
+	return strings.Join(list, "\n")
 }
