@@ -150,8 +150,7 @@ func (ctrl *Controller) runUnmergedPR(ctx context.Context, logger *zap.Logger, c
 		}
 		logger.Info("update an issue")
 		if err := ctrl.github.UpdateIssue(ctx, repoOwner, repoName, issue.Number, &github.IssueRequest{
-			Body: github.String(issue.Body + `
-* ` + prURL),
+			Body: github.String(issue.Body + "\n* " + prURL),
 		}); err != nil {
 			return fmt.Errorf("update an issue: %w", err)
 		}
@@ -163,8 +162,7 @@ func (ctrl *Controller) runUnmergedPR(ctx context.Context, logger *zap.Logger, c
 	if err != nil {
 		return err
 	}
-	body += `
-* ` + prURL
+	body += "\n* " + prURL
 
 	logger.Info("create an issue")
 	is, err := ctrl.github.CreateIssue(ctx, repoOwner, repoName, &github.IssueRequest{
