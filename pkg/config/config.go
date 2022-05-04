@@ -28,6 +28,7 @@ type Issue struct {
 	Title               *string  `json:"title,omitempty"`
 	DescriptionHeader   *string  `yaml:"description_header,omitempty"`
 	DescriptionBody     *string  `yaml:"description_body,omitempty"`
+	AdditionalBody      string   `yaml:"additional_body,omitempty"`
 	Labels              []string `json:"labels,omitempty"`
 	AdditionalLabels    []string `yaml:"additional_labels,omitempty"`
 	Assignees           []string `json:"assignees,omitempty"`
@@ -59,6 +60,7 @@ func (issue *Issue) Merge(is *Issue) {
 	}
 	issue.AdditionalLabels = append(issue.AdditionalLabels, is.AdditionalLabels...)
 	issue.AdditionalAssignees = append(issue.AdditionalAssignees, is.AdditionalAssignees...)
+	issue.AdditionalBody = domain.JoinBody(issue.AdditionalBody, is.AdditionalBody)
 }
 
 func SetDefault(cfg *Config, repo *domain.Repo) {
@@ -94,10 +96,7 @@ func SetDefault(cfg *Config, repo *domain.Repo) {
 }
 
 func (issue *Issue) Description() string {
-	return domain.GetString(issue.DescriptionHeader) + `
-` + domain.GetString(issue.DescriptionBody) + `
-## Closed Pull Requests
-`
+	return domain.JoinBody(domain.GetString(issue.DescriptionHeader), domain.GetString(issue.DescriptionBody), issue.AdditionalBody) + "\n## Closed Pull Requests\n"
 }
 
 const defaultIssueTitleTemplate = `renovate-issue-action ({{.RepoOwner}}/{{.RepoName}}): {{.Metadata.Name}}{{if .Metadata.PackageFileDir}} ({{.Metadata.PackageFileDir}}){{end}}{{if eq .Metadata.UpdateType "major"}} major{{end}}`
