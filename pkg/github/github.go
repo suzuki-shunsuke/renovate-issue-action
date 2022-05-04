@@ -98,3 +98,35 @@ func (cl *client) CreateComment(ctx context.Context, repoOwner, repoName string,
 	}
 	return cmt, nil
 }
+
+func (cl *client) AddProjectNextItem(ctx context.Context, issueID, projectID string) error {
+	var m struct {
+		AddProjectNextItem struct {
+			ProjectNextItem struct {
+				Title string
+			}
+		} `graphql:"addProjectNextItem(input: $input)"`
+	}
+	if err := cl.v4Client.Mutate(ctx, &m, githubv4.AddProjectNextItemInput{
+		ProjectID: projectID,
+		ContentID: issueID,
+	}, nil); err != nil {
+		return fmt.Errorf("add an issue to GitHub Project by GitHub GraphQL API (addProjectNextItem): %w", err)
+	}
+	return nil
+}
+
+func (cl *client) AddProjectCard(ctx context.Context, issueID, projectID string) error {
+	var m struct {
+		AddProjectCard struct {
+			ClientMutationID string
+		} `graphql:"addProjectCard(input: $input)"`
+	}
+	if err := cl.v4Client.Mutate(ctx, &m, githubv4.AddProjectCardInput{
+		ProjectColumnID: projectID,
+		ContentID:       githubv4.NewID(issueID),
+	}, nil); err != nil {
+		return fmt.Errorf("add an issue to GitHub Project by GitHub GraphQL API (addProjectCard): %w", err)
+	}
+	return nil
+}

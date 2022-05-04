@@ -5,9 +5,10 @@ import (
 )
 
 type Config struct {
-	RenovateLogin string   `yaml:"renovate_login,omitempty" jsonschema:"default=renovate[bot]"`
-	Issue         *Issue   `json:"issue,omitempty"`
-	Entries       []*Entry `json:"entries,omitempty"`
+	RenovateLogin string     `yaml:"renovate_login,omitempty" jsonschema:"default=renovate[bot]"`
+	Issue         *Issue     `json:"issue,omitempty"`
+	Entries       []*Entry   `json:"entries,omitempty"`
+	Projects      []*Project `json:"projects,omitempty"`
 }
 
 type Entry struct {
@@ -33,7 +34,13 @@ type Issue struct {
 	AdditionalLabels    []string `yaml:"additional_labels,omitempty"`
 	Assignees           []string `json:"assignees,omitempty"`
 	AdditionalAssignees []string `yaml:"additional_assignees,omitempty"`
-	// Projects            []string `json:"projects,omitempty"`
+	Projects            []string `json:"projects,omitempty"`
+}
+
+type Project struct {
+	Alias    string `json:"alias"`
+	NextID   string `yaml:"next_id,omitempty"`
+	ColumnID string `yaml:"column_id,omitempty"`
 }
 
 func (issue *Issue) Merge(is *Issue) {
@@ -61,6 +68,7 @@ func (issue *Issue) Merge(is *Issue) {
 	issue.AdditionalLabels = append(issue.AdditionalLabels, is.AdditionalLabels...)
 	issue.AdditionalAssignees = append(issue.AdditionalAssignees, is.AdditionalAssignees...)
 	issue.AdditionalBody = domain.JoinBody(issue.AdditionalBody, is.AdditionalBody)
+	issue.Projects = append(issue.Projects, is.Projects...)
 }
 
 func SetDefault(cfg *Config, repo *domain.Repo) {
