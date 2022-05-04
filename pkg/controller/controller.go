@@ -184,7 +184,7 @@ func (ctrl *Controller) runUnmergedPR(ctx context.Context, logger *zap.Logger, c
 func (ctrl *Controller) addIssueToProjects(ctx context.Context, logger *zap.Logger, cfg *config.Config, issueID string) error {
 	projectMap := make(map[string]*config.Project, len(cfg.Projects))
 	for _, project := range cfg.Projects {
-		projectMap[project.Name] = project
+		projectMap[project.Alias] = project
 	}
 	logger = logger.With(zap.String("issue_id", issueID))
 	for _, projectName := range cfg.Issue.Projects {

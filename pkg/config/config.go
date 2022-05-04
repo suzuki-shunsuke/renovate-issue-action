@@ -38,7 +38,7 @@ type Issue struct {
 }
 
 type Project struct {
-	Name     string `json:"name"`
+	Alias    string `json:"alias"`
 	NextID   string `yaml:"next_id,omitempty"`
 	ColumnID string `yaml:"column_id,omitempty"`
 }
