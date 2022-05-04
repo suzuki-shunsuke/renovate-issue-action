@@ -106,7 +106,10 @@ _This pull request was created by [renovate-issue-action](https://github.com/suz
 
 :warning: Please don't edit the Issue title, because renovate-issue-action searches issue with Issue title.
 
-{{if .Metadata.PackageName}}packageName: {{.Metadata.PackageName}}{{end}}
-{{if .Metadata.GroupName}}groupName: {{.Metadata.GroupName}}{{end}}
-{{if .Metadata.DepName}}depName: {{.Metadata.DepName}}{{end}}
+{{if .Metadata.PackageName}}packageName: {{.Metadata.PackageName}}
+{{end}}
+{{- if .Metadata.GroupName}}groupName: {{.Metadata.GroupName}}
+{{end}}
+{{- if .Metadata.DepName}}depName: {{.Metadata.DepName}}
+{{end}}
 `
