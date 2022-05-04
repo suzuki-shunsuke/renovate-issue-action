@@ -125,7 +125,7 @@ func (ctrl *Controller) runMergedPR(ctx context.Context, logger *zap.Logger, rep
 	return nil
 }
 
-func (ctrl *Controller) runUnmergedPR(ctx context.Context, logger *zap.Logger, cfg *config.Config, repoOwner, repoName, title string, issue *domain.Issue, metadata *domain.Metadata, prURL string, closedByRenovate bool, buildURL string) error {
+func (ctrl *Controller) runUnmergedPR(ctx context.Context, logger *zap.Logger, cfg *config.Config, repoOwner, repoName, title string, issue *domain.Issue, metadata *domain.Metadata, prURL string, closedByRenovate bool, buildURL string) error { //nolint:cyclop
 	if closedByRenovate {
 		if issue == nil {
 			return nil
@@ -164,7 +164,7 @@ func (ctrl *Controller) runUnmergedPR(ctx context.Context, logger *zap.Logger, c
 	}
 	body += "\n* " + prURL
 
-	logger.Info("create an issue")
+	logger.Info("creating an issue")
 	is, err := ctrl.github.CreateIssue(ctx, repoOwner, repoName, &github.IssueRequest{
 		Title:     github.String(title),
 		Body:      github.String(body),
@@ -175,6 +175,48 @@ func (ctrl *Controller) runUnmergedPR(ctx context.Context, logger *zap.Logger, c
 		return fmt.Errorf("create an issue: %w", err)
 	}
 	logger.Info("created an issue", zap.Int("pr_number", is.GetNumber()))
+	if err := ctrl.addIssueToProjects(ctx, logger, cfg, is.GetNodeID()); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (ctrl *Controller) addIssueToProjects(ctx context.Context, logger *zap.Logger, cfg *config.Config, issueID string) error {
+	projectMap := make(map[string]*config.Project, len(cfg.Projects))
+	for _, project := range cfg.Projects {
+		projectMap[project.Name] = project
+	}
+	logger = logger.With(zap.String("issue_id", issueID))
+	for _, projectName := range cfg.Issue.Projects {
+		logger := logger.With(zap.String("project_name", projectName))
+		project, ok := projectMap[projectName]
+		if !ok {
+			logger.Error("project name isn't found")
+			continue
+		}
+		if project.ColumnID != "" {
+			logger = logger.With(zap.String("project_column_id", project.ColumnID))
+		}
+		if project.NextID != "" {
+			logger = logger.With(zap.String("project_next_id", project.NextID))
+		}
+		logger.Info("adding an issue to project")
+		if project.ColumnID != "" {
+			if err := ctrl.github.AddProjectCard(ctx, issueID, project.ColumnID); err != nil {
+				logger.Error("add an issue to a project", zap.Error(err))
+			}
+			logger.Info("added an issue to project")
+			continue
+		}
+		if project.NextID != "" {
+			if err := ctrl.github.AddProjectNextItem(ctx, issueID, project.NextID); err != nil {
+				logger.Error("add an issue to a project", zap.Error(err))
+			}
+			logger.Info("added an issue to project")
+			continue
+		}
+		logger.Info("added an issue to project")
+	}
 	return nil
 }
 

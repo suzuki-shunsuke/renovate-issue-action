@@ -12,6 +12,8 @@ type GitHub interface {
 	UpdateIssue(ctx context.Context, repoOwner, repoName string, issueNumber int, issue *github.IssueRequest) error
 	CreateIssue(ctx context.Context, repoOwner, repoName string, issue *github.IssueRequest) (*github.Issue, error)
 	CreateComment(ctx context.Context, repoOwner, repoName string, issueNumber int, body string) (*github.IssueComment, error)
+	AddProjectNextItem(ctx context.Context, issueID, projectID string) error
+	AddProjectCard(ctx context.Context, issueID, projectID string) error
 }
 
 type Issue struct {
