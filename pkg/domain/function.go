@@ -24,5 +24,5 @@ func JoinBody(arr ...string) string {
 		}
 		list = append(list, s)
 	}
-	return strings.Join(list, "\n")
+	return strings.Join(list, "\n\n")
 }

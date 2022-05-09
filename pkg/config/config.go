@@ -100,7 +100,7 @@ func SetDefault(cfg *Config, repo *domain.Repo) {
 }
 
 func (issue *Issue) Description() string {
-	return domain.JoinBody(domain.GetString(issue.Body), issue.AdditionalBody) + "\n## Closed Pull Requests\n"
+	return domain.JoinBody(domain.GetString(issue.Body), issue.AdditionalBody) + "\n\n## Closed Pull Requests\n"
 }
 
 const defaultIssueTitleTemplate = `renovate-issue-action ({{.RepoOwner}}/{{.RepoName}}): {{.Metadata.Name}}{{if .Metadata.PackageFileDir}} ({{.Metadata.PackageFileDir}}){{end}}{{if eq .Metadata.UpdateType "major"}} major{{end}}`
