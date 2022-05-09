@@ -27,8 +27,7 @@ type Issue struct {
 	RepoOwner           string   `yaml:"repo_owner,omitempty"`
 	RepoName            string   `yaml:"repo_name,omitempty"`
 	Title               *string  `json:"title,omitempty"`
-	DescriptionHeader   *string  `yaml:"description_header,omitempty"`
-	DescriptionBody     *string  `yaml:"description_body,omitempty"`
+	Body                *string  `yaml:"body,omitempty"`
 	AdditionalBody      string   `yaml:"additional_body,omitempty"`
 	Labels              []string `json:"labels,omitempty"`
 	AdditionalLabels    []string `yaml:"additional_labels,omitempty"`
@@ -53,11 +52,8 @@ func (issue *Issue) Merge(is *Issue) {
 	if is.Title != nil {
 		issue.Title = is.Title
 	}
-	if is.DescriptionHeader != nil {
-		issue.DescriptionHeader = is.DescriptionHeader
-	}
-	if is.DescriptionBody != nil {
-		issue.DescriptionBody = is.DescriptionBody
+	if is.Body != nil {
+		issue.Body = is.Body
 	}
 	if is.Labels != nil {
 		issue.Labels = is.Labels
@@ -85,12 +81,12 @@ func SetDefault(cfg *Config, repo *domain.Repo) {
 		}
 		*cfg.Issue.Title = defaultIssueTitleTemplate
 	}
-	if domain.GetString(cfg.Issue.DescriptionHeader) == "" {
-		if cfg.Issue.DescriptionHeader == nil {
+	if domain.GetString(cfg.Issue.Body) == "" {
+		if cfg.Issue.Body == nil {
 			s := ""
-			cfg.Issue.DescriptionHeader = &s
+			cfg.Issue.Body = &s
 		}
-		*cfg.Issue.DescriptionHeader = defaultIssueDescriptionHeader
+		*cfg.Issue.Body = defaultIssueBody
 	}
 	if cfg.Issue.RepoOwner == "" {
 		cfg.Issue.RepoOwner = repo.Owner
@@ -104,12 +100,12 @@ func SetDefault(cfg *Config, repo *domain.Repo) {
 }
 
 func (issue *Issue) Description() string {
-	return domain.JoinBody(domain.GetString(issue.DescriptionHeader), domain.GetString(issue.DescriptionBody), issue.AdditionalBody) + "\n## Closed Pull Requests\n"
+	return domain.JoinBody(domain.GetString(issue.Body), issue.AdditionalBody) + "\n## Closed Pull Requests\n"
 }
 
 const defaultIssueTitleTemplate = `renovate-issue-action ({{.RepoOwner}}/{{.RepoName}}): {{.Metadata.Name}}{{if .Metadata.PackageFileDir}} ({{.Metadata.PackageFileDir}}){{end}}{{if eq .Metadata.UpdateType "major"}} major{{end}}`
 
-const defaultIssueDescriptionHeader = `
+const defaultIssueBody = `
 _This pull request was created by [renovate-issue-action](https://github.com/suzuki-shunsuke/renovate-issue-action)._
 
 :warning: Please don't edit the Issue title, because renovate-issue-action searches issue with Issue title.
