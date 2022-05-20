@@ -204,18 +204,19 @@ func (ctrl *Controller) addIssueToProjects(ctx context.Context, logger *zap.Logg
 		if project.ColumnID != "" {
 			if err := ctrl.github.AddProjectCard(ctx, issueID, project.ColumnID); err != nil {
 				logger.Error("add an issue to a project", zap.Error(err))
+			} else {
+				logger.Info("added an issue to project")
 			}
-			logger.Info("added an issue to project")
 			continue
 		}
 		if project.NextID != "" {
 			if err := ctrl.github.AddProjectNextItem(ctx, issueID, project.NextID); err != nil {
 				logger.Error("add an issue to a project", zap.Error(err))
+			} else {
+				logger.Info("added an issue to project")
 			}
-			logger.Info("added an issue to project")
 			continue
 		}
-		logger.Info("added an issue to project")
 	}
 	return nil
 }
