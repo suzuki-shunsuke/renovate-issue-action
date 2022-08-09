@@ -11,7 +11,7 @@ require (
 	github.com/shurcooL/githubv4 v0.0.0-20220520033151-0b4e3294ff00
 	github.com/spf13/pflag v1.0.5
 	github.com/suzuki-shunsuke/zap-error v0.1.1
-	go.uber.org/zap v1.21.0
+	go.uber.org/zap v1.22.0
 	golang.org/x/oauth2 v0.0.0-20220808172628-8227340efae7
 	gopkg.in/yaml.v2 v2.4.0
 )
