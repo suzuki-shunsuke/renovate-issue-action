@@ -7,7 +7,7 @@ require (
 	github.com/antonmedv/expr v1.9.0
 	github.com/google/go-github/v43 v43.0.0
 	github.com/google/wire v0.5.0
-	github.com/invopop/jsonschema v0.6.0
+	github.com/invopop/jsonschema v0.7.0
 	github.com/shurcooL/githubv4 v0.0.0-20220520033151-0b4e3294ff00
 	github.com/spf13/pflag v1.0.5
 	github.com/suzuki-shunsuke/zap-error v0.1.1
