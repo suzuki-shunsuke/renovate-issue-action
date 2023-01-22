@@ -1,8 +1,11 @@
 {
   extends: [
     "config:base",
-    "github>suzuki-shunsuke/renovate-config",
+    "helpers:pinGitHubActionDigests",
+    "github>suzuki-shunsuke/renovate-config#1.1.2",
+    "github>suzuki-shunsuke/renovate-config:nolimit#1.1.1",
     "github>aquaproj/aqua-renovate-config#1.5.1",
+    "github>aquaproj/aqua-renovate-config:file#1.5.1(aqua/.*\\.ya?ml)",
   ],
   "prBodyNotes": [
     "<!-- renovate-issue-action: {\"packageFileDir\": \"{{packageFileDir}}\", \"packageName\": \"{{packageName}}\", \"groupName\": \"{{groupName}}\", \"depName\": \"{{depName}}\", \"manager\": \"{{manager}}\", \"updateType\": \"{{updateType}}\"} -->"
