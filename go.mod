@@ -6,7 +6,6 @@ require (
 	github.com/Masterminds/sprig/v3 v3.2.3
 	github.com/antonmedv/expr v1.12.5
 	github.com/google/go-github/v43 v43.0.0
-	github.com/google/go-github/v52 v52.0.0
 	github.com/google/wire v0.5.0
 	github.com/invopop/jsonschema v0.7.0
 	github.com/shurcooL/githubv4 v0.0.0-20220520033151-0b4e3294ff00
@@ -21,6 +20,7 @@ require (
 	github.com/Masterminds/goutils v1.1.1 // indirect
 	github.com/Masterminds/semver/v3 v3.2.0 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
+	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/google/uuid v1.1.1 // indirect
 	github.com/huandu/xstrings v1.3.3 // indirect
