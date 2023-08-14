@@ -59,10 +59,11 @@ func (ctrl *Controller) Run(ctx context.Context, logger *zap.Logger, param *RunP
 	}
 	config.SetDefault(cfg, prRepo)
 	logger.Info("select an entry")
-	entry := selectEntry(logger, cfg.Entries, &expr.Param{
+	exprParam := &expr.Param{
 		Metadata: metadata,
 		Labels:   getLabelsFromPR(pr),
-	})
+	}
+	entry := selectEntry(logger, cfg.Entries, exprParam)
 	if entry != nil {
 		if entry.Ignore {
 			logger.Info("do nothing because entry.ignore is true")
@@ -99,7 +100,7 @@ func (ctrl *Controller) Run(ctx context.Context, logger *zap.Logger, param *RunP
 	closedByRenovate := param.GitHubActor == cfg.RenovateLogin
 	logger = logger.With(zap.Bool("closed_by_renovate", closedByRenovate))
 	logger.Info("pr was closed")
-	if err := ctrl.runUnmergedPR(ctx, logger, cfg, cfg.Issue.RepoOwner, cfg.Issue.RepoName, title, issue, metadata, prURL, closedByRenovate, buildURL); err != nil {
+	if err := ctrl.runUnmergedPR(ctx, logger, cfg, cfg.Issue.RepoOwner, cfg.Issue.RepoName, title, issue, metadata, prURL, closedByRenovate, buildURL, exprParam); err != nil {
 		return err
 	}
 	return nil
@@ -125,7 +126,7 @@ func (ctrl *Controller) runMergedPR(ctx context.Context, logger *zap.Logger, rep
 	return nil
 }
 
-func (ctrl *Controller) runUnmergedPR(ctx context.Context, logger *zap.Logger, cfg *config.Config, repoOwner, repoName, title string, issue *domain.Issue, metadata *domain.Metadata, prURL string, closedByRenovate bool, buildURL string) error { //nolint:cyclop
+func (ctrl *Controller) runUnmergedPR(ctx context.Context, logger *zap.Logger, cfg *config.Config, repoOwner, repoName, title string, issue *domain.Issue, metadata *domain.Metadata, prURL string, closedByRenovate bool, buildURL string, exprParam *expr.Param) error { //nolint:cyclop
 	if closedByRenovate {
 		if issue == nil {
 			return nil
@@ -169,7 +170,7 @@ func (ctrl *Controller) runUnmergedPR(ctx context.Context, logger *zap.Logger, c
 		Title:     github.String(title),
 		Body:      github.String(body),
 		Labels:    domain.GetStringSlicePointer(append(cfg.Issue.Labels, cfg.Issue.AdditionalLabels...)),
-		Assignees: domain.GetStringSlicePointer(append(cfg.Issue.Assignees, cfg.Issue.AdditionalAssignees...)),
+		Assignees: domain.GetStringSlicePointer(evaluateAssignees(logger, exprParam, append(cfg.Issue.Assignees, cfg.Issue.AdditionalAssignees...))),
 	})
 	if err != nil {
 		return fmt.Errorf("create an issue: %w", err)
