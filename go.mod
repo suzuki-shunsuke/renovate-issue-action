@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/Masterminds/sprig/v3 v3.2.3
-	github.com/antonmedv/expr v1.14.2
+	github.com/antonmedv/expr v1.14.3
 	github.com/google/go-github/v43 v43.0.0
 	github.com/google/wire v0.5.0
 	github.com/invopop/jsonschema v0.7.0
