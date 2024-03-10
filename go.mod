@@ -1,11 +1,14 @@
 module github.com/suzuki-shunsuke/renovate-issue-action
 
-go 1.19
+go 1.21
+
+toolchain go1.22.1
 
 require (
 	github.com/Masterminds/sprig/v3 v3.2.3
 	github.com/antonmedv/expr v1.15.5
 	github.com/google/go-github/v43 v43.0.0
+	github.com/google/go-github/v60 v60.0.0
 	github.com/google/wire v0.6.0
 	github.com/invopop/jsonschema v0.12.0
 	github.com/shurcooL/githubv4 v0.0.0-20220520033151-0b4e3294ff00
