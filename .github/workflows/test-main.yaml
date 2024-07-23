@@ -14,14 +14,14 @@ jobs:
     permissions: {}
     steps:
       - name: Checkout
-        uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # v3
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
       - uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5.0.0
         with:
           go-version: "1.19.5"
           cache: true
-      - uses: aquaproj/aqua-installer@7c7338067bdb97d5bea2acc82b5870afca470d18 # v2.3.0
+      - uses: aquaproj/aqua-installer@6ce1f8848ec8e61f14d57bd5d7597057a6dd187c # v3.0.1
         with:
-          aqua_version: v2.25.0
+          aqua_version: v2.30.0
         env:
           AQUA_GITHUB_TOKEN: ${{github.token}}
       - run: golangci-lint run
